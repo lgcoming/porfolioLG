@@ -1,0 +1,6 @@
+allowBuilds:
+  agent-browser: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - '@types/react-dom@19.2.5'
+  - lucide-react@1.34.0
