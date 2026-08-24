@@ -15,6 +15,8 @@ export type Project = {
   readonly href: `https://${string}`;
   readonly image: `/${string}`;
   readonly imageAlt: string;
+  readonly imageFit?: "cover" | "contain";
+  readonly imageSurface?: "light" | "warm" | "dark";
 };
 
 export type Service = {
@@ -23,4 +25,3 @@ export type Service = {
   readonly category: "web" | "ai" | "growth" | "support";
   readonly status?: "Próximamente";
 };
-

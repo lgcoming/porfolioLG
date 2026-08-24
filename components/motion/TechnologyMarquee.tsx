@@ -92,7 +92,7 @@ function MarqueeRow({ items, direction }: MarqueeRowProps) {
 
 export function TechnologyMarquee({ rows }: TechnologyMarqueeProps) {
   return (
-    <div className="technology-marquee" aria-label="Tecnologías utilizadas">
+    <div className="technology-marquee" role="group" aria-label="Tecnologías utilizadas">
       {rows.map((row, index) => (
         <MarqueeRow key={index} items={row} direction={index % 2 === 0 ? -1 : 1} />
       ))}

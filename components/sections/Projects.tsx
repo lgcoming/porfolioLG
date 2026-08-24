@@ -11,7 +11,7 @@ export function Projects() {
             headingId="projects-heading"
             index="03 / Trabajo"
             title="Últimos proyectos"
-            description="Cuatro proyectos reales con contextos distintos, unidos por una ejecución clara, responsiva y orientada a producto."
+            description="Ocho proyectos reales con contextos distintos, unidos por una ejecución clara, responsiva y orientada a producto."
           />
         </div>
 

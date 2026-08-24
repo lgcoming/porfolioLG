@@ -37,5 +37,48 @@ export const projects = [
     image: "/projects/wikipeia.jpg",
     imageAlt: "Identidad visual de WikipeIA",
   },
+  {
+    name: "Daycar",
+    description:
+      "Web corporativa para una empresa de reformas integrales en Zaragoza, con una presentación clara de servicios, proyectos y vías de contacto.",
+    stack: ["WordPress", "Elementor", "HTML5", "CSS3"],
+    href: "https://daycarhomes.com/",
+    image: "/projects/daycar.png",
+    imageAlt: "Logotipo de Daycar",
+    imageFit: "contain",
+    imageSurface: "light",
+  },
+  {
+    name: "Colchonfy",
+    description:
+      "Ecommerce de colchones fabricados en España, con catálogo, test de descanso, contenidos de producto y proceso de compra online.",
+    stack: ["WordPress", "WooCommerce", "Elementor", "CSS3"],
+    href: "https://colchon-fy.com/",
+    image: "/projects/colchonfy.png",
+    imageAlt: "Logotipo de Colchonfy",
+    imageFit: "contain",
+    imageSurface: "warm",
+  },
+  {
+    name: "Clínica Dental Castillo",
+    description:
+      "Sitio corporativo para una clínica dental de Zaragoza, centrado en sus tratamientos, tecnología y atención al paciente.",
+    stack: ["Next.js", "React", "Vercel", "CSS3"],
+    href: "https://clinica-dental-castillo.vercel.app/",
+    image: "/projects/clinica-dental-castillo.webp",
+    imageAlt: "Logotipo de Clínica Dental Castillo",
+    imageFit: "contain",
+    imageSurface: "dark",
+  },
+  {
+    name: "VonLippe Design",
+    description:
+      "Tienda online para una marca zaragozana de moda responsable, prendas exclusivas y colecciones de edición limitada.",
+    stack: ["WordPress", "WooCommerce", "HTML5", "CSS3"],
+    href: "https://www.vonlippe.com/",
+    image: "/projects/vonlippe.webp",
+    imageAlt: "Logotipo de VonLippe Design",
+    imageFit: "contain",
+    imageSurface: "light",
+  },
 ] as const satisfies readonly Project[];
-

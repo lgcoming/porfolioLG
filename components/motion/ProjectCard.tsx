@@ -68,7 +68,9 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
     >
-      <div className="project-image">
+      <div
+        className={`project-image project-image-${project.imageFit ?? "cover"} project-image-surface-${project.imageSurface ?? "light"}`}
+      >
         <Image
           src={project.image}
           alt={project.imageAlt}

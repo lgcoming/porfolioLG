@@ -313,13 +313,13 @@ svg {
   background: var(--surface-secondary);
 }
 
-.project-card-1,
-.project-card-4 {
+.project-card:nth-child(4n + 1),
+.project-card:nth-child(4n) {
   grid-column: span 7;
 }
 
-.project-card-2,
-.project-card-3 {
+.project-card:nth-child(4n + 2),
+.project-card:nth-child(4n + 3) {
   grid-column: span 5;
 }
 
@@ -341,6 +341,27 @@ svg {
 .project-image img {
   object-fit: cover;
   transition: transform 700ms var(--ease-out), filter 700ms var(--ease-out);
+}
+
+.project-image-contain img {
+  object-fit: contain;
+  padding: clamp(2.75rem, 6vw, 5.5rem);
+}
+
+.project-image-contain::after {
+  background: radial-gradient(circle at 50% 45%, transparent 20%, rgba(7, 10, 9, 0.08));
+}
+
+.project-image-surface-light {
+  background: #f4f4f1;
+}
+
+.project-image-surface-warm {
+  background: #f8f2f0;
+}
+
+.project-image-surface-dark {
+  background: #111614;
 }
 
 .project-card:hover .project-image img {
@@ -533,10 +554,7 @@ svg {
 }
 
 @media (max-width: 64rem) {
-  .project-card-1,
-  .project-card-2,
-  .project-card-3,
-  .project-card-4 {
+  .project-card {
     grid-column: span 6;
   }
 
@@ -547,10 +565,7 @@ svg {
 }
 
 @media (max-width: 46rem) {
-  .project-card-1,
-  .project-card-2,
-  .project-card-3,
-  .project-card-4 {
+  .project-card {
     grid-column: 1 / -1;
   }
 

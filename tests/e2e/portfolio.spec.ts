@@ -33,6 +33,7 @@ test("mobile menu opens, navigates, and closes", async ({ page }) => {
 test("project cards keep their real links", async ({ page }) => {
   await page.goto("/#projects");
 
+  await expect(page.locator(".project-card")).toHaveCount(8);
   await expect(page.getByRole("link", { name: /Calmell Group/ })).toHaveAttribute("href", "https://calmell.com/");
   await expect(page.getByRole("link", { name: /Camisetas Mundial/ })).toHaveAttribute(
     "href",
@@ -40,6 +41,16 @@ test("project cards keep their real links", async ({ page }) => {
   );
   await expect(page.getByRole("link", { name: /Metabyts/ })).toHaveAttribute("href", "https://metabyts.com/");
   await expect(page.getByRole("link", { name: /WikipeIA/ })).toHaveAttribute("href", "https://wikipeia.es/");
+  await expect(page.getByRole("link", { name: /Daycar/ })).toHaveAttribute("href", "https://daycarhomes.com/");
+  await expect(page.getByRole("link", { name: /Colchonfy/ })).toHaveAttribute("href", "https://colchon-fy.com/");
+  await expect(page.getByRole("link", { name: /Clínica Dental Castillo/ })).toHaveAttribute(
+    "href",
+    "https://clinica-dental-castillo.vercel.app/",
+  );
+  await expect(page.getByRole("link", { name: /VonLippe Design/ })).toHaveAttribute(
+    "href",
+    "https://www.vonlippe.com/",
+  );
 });
 
 test("contact form validates and reports success", async ({ page }) => {
