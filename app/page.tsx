@@ -1,4 +1,3 @@
-import { Cursor } from "@/components/motion/Cursor";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { About } from "@/components/sections/About";
@@ -7,29 +6,29 @@ import { Hero } from "@/components/sections/Hero";
 import { Projects } from "@/components/sections/Projects";
 import { Services } from "@/components/sections/Services";
 import { Technologies } from "@/components/sections/Technologies";
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lgcomin.com";
+import { BackToTop } from "@/components/ui/BackToTop";
+import { contactDetails } from "@/data/contact";
 
 const structuredData = {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "Person",
-      "@id": `${siteUrl}/#person`,
-      name: "Luis Gómez",
-      url: siteUrl,
+      "@id": "https://lgcomin.com/#person",
+      name: "Luis Gomez",
+      url: "https://lgcomin.com/",
+      image: "https://lgcomin.com/logo-lg.png",
       jobTitle: "Full Stack Web Developer",
-      email: "mailto:luis.gomez.comin@gmail.com",
-      sameAs: ["https://linkedin.com/in/lgcomin"],
-      knowsAbout: ["Desarrollo web", "Next.js", "React", "Inteligencia artificial", "Automatización"],
+      sameAs: [contactDetails.linkedinUrl],
+      knowsAbout: ["Desarrollo web", "Inteligencia artificial", "Automatización"],
     },
     {
       "@type": "WebSite",
-      "@id": `${siteUrl}/#website`,
-      url: siteUrl,
-      name: "LG / Luis Gómez",
+      "@id": "https://lgcomin.com/#website",
+      url: "https://lgcomin.com/",
+      name: "LGCOMIN",
       inLanguage: "es",
-      author: { "@id": `${siteUrl}/#person` },
+      author: { "@id": "https://lgcomin.com/#person" },
     },
   ],
 };
@@ -41,7 +40,6 @@ export default function Home() {
         Saltar al contenido principal
       </a>
       <Navbar />
-      <Cursor />
       <main id="main-content">
         <Hero />
         <About />
@@ -51,11 +49,11 @@ export default function Home() {
         <Contact />
       </main>
       <Footer />
+      <BackToTop />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
     </>
   );
 }
-

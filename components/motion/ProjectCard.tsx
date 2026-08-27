@@ -1,96 +1,74 @@
 "use client";
 
+import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
-import { useMotionValue, useSpring } from "motion/react";
-import * as m from "motion/react-m";
-import { useEffect, useRef } from "react";
-import { useHydratedReducedMotion } from "@/lib/use-reduced-motion";
+import { useRef } from "react";
 import type { Project } from "@/types/content";
 
 type ProjectCardProps = {
-  readonly project: Project;
-  readonly index: number;
+  project: Project;
+  index: number;
 };
 
 export function ProjectCard({ project, index }: ProjectCardProps) {
-  const cardRef = useRef<HTMLAnchorElement>(null);
-  const boundsRef = useRef<DOMRect | null>(null);
-  const cleanupTimerRef = useRef<number | null>(null);
-  const rotateXValue = useMotionValue(0);
-  const rotateYValue = useMotionValue(0);
-  const rotateX = useSpring(rotateXValue, { stiffness: 230, damping: 24, mass: 0.55 });
-  const rotateY = useSpring(rotateYValue, { stiffness: 230, damping: 24, mass: 0.55 });
-  const reduceMotion = useHydratedReducedMotion();
-
-  useEffect(
-    () => () => {
-      if (cleanupTimerRef.current) window.clearTimeout(cleanupTimerRef.current);
-    },
-    [],
-  );
-
-  const onPointerEnter = () => {
-    if (reduceMotion || !window.matchMedia("(pointer: fine) and (hover: hover)").matches) return;
-    boundsRef.current = cardRef.current?.getBoundingClientRect() ?? null;
-    if (cardRef.current) cardRef.current.style.willChange = "transform";
-  };
-
-  const onPointerMove = (event: React.PointerEvent<HTMLAnchorElement>) => {
-    const bounds = boundsRef.current;
-    if (!bounds || reduceMotion) return;
-    const horizontal = (event.clientX - bounds.left) / bounds.width - 0.5;
-    const vertical = (event.clientY - bounds.top) / bounds.height - 0.5;
-    rotateXValue.set(vertical * -4);
-    rotateYValue.set(horizontal * 4);
-  };
-
-  const onPointerLeave = () => {
-    boundsRef.current = null;
-    rotateXValue.set(0);
-    rotateYValue.set(0);
-    if (cleanupTimerRef.current) window.clearTimeout(cleanupTimerRef.current);
-    cleanupTimerRef.current = window.setTimeout(() => {
-      if (cardRef.current) cardRef.current.style.willChange = "auto";
-    }, 360);
-  };
+  const ref = useRef<HTMLElement>(null);
+  const imageFit = project.imageFit ?? "cover";
+  const imageSurface = project.imageSurface ?? "dark";
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const progress = useSpring(scrollYProgress, { stiffness: 115, damping: 28, mass: 0.55 });
+  const cardY = useTransform(progress, [0, 0.28, 0.8, 1], [78, 0, 0, -26]);
+  const cardScale = useTransform(progress, [0, 0.28, 0.8, 1], [0.91, 1, 1, 0.975]);
+  const cardOpacity = useTransform(progress, [0, 0.2, 0.82, 1], [0.05, 1, 1, 0.76]);
+  const cardRotate = useTransform(progress, [0, 0.28, 1], [index % 2 === 0 ? -1.4 : 1.4, 0, 0]);
+  const mediaY = useTransform(progress, [0, 0.5, 1], [34, 0, -28]);
+  const mediaScale = useTransform(progress, [0, 0.5, 1], [1.09, 1.02, 1.075]);
+  const containedMediaScale = useTransform(progress, [0, 0.5, 1], [1.025, 1, 1.018]);
+  const contentY = useTransform(progress, [0, 0.5, 1], [18, 0, -12]);
 
   return (
-    <m.a
-      ref={cardRef}
-      className={`project-card project-card-${index + 1}`}
-      href={project.href}
-      target="_blank"
-      rel="noreferrer"
-      data-cursor="VER"
-      style={reduceMotion ? undefined : { rotateX, rotateY, transformPerspective: 1100 }}
-      onPointerEnter={onPointerEnter}
-      onPointerMove={onPointerMove}
-      onPointerLeave={onPointerLeave}
+    <motion.article
+      ref={ref}
+      className="project-case"
+      style={{ y: cardY, scale: cardScale, opacity: cardOpacity, rotate: cardRotate }}
     >
-      <div
-        className={`project-image project-image-${project.imageFit ?? "cover"} project-image-surface-${project.imageSurface ?? "light"}`}
+      <a
+        className="project-link"
+        href={project.href}
+        target="_blank"
+        rel="noreferrer"
+        data-cursor="project"
+        aria-label={`Ver proyecto ${project.title}`}
       >
-        <Image
-          src={project.image}
-          alt={project.imageAlt}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 620px"
-        />
-        <span className="project-number mono">{String(index + 1).padStart(2, "0")}</span>
-      </div>
-      <div className="project-content">
-        <div className="project-title-row">
-          <h3>{project.name}</h3>
-          <ArrowUpRight aria-hidden="true" />
+        <div className="project-media" data-surface={imageSurface}>
+          <motion.div
+            className="project-image-wrap"
+            data-fit={imageFit}
+            style={{ y: mediaY, scale: imageFit === "contain" ? containedMediaScale : mediaScale }}
+          >
+            <Image
+              src={project.image}
+              alt={project.imageAlt ?? project.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 62vw"
+              className="project-image"
+              data-fit={imageFit}
+              data-padding={project.imagePadding ?? "standard"}
+              data-surface={imageSurface}
+            />
+          </motion.div>
+          <span className="project-scan" aria-hidden="true" />
         </div>
-        <p>{project.description}</p>
-        <ul className="project-stack" role="list" aria-label={`Tecnologías de ${project.name}`}>
-          {project.stack.map((technology) => (
-            <li key={technology}>{technology}</li>
-          ))}
-        </ul>
-      </div>
-    </m.a>
+
+        <motion.div className="project-copy" style={{ y: contentY }}>
+          <span className="project-index">{String(index + 1).padStart(2, "0")}</span>
+          <h3>{project.title}</h3>
+          <p>{project.description}</p>
+          <ul aria-label="Tecnologías utilizadas">
+            {project.stack.map((technology) => <li key={technology}>{technology}</li>)}
+          </ul>
+          <span className="project-cta">VER PROYECTO ↗</span>
+        </motion.div>
+      </a>
+    </motion.article>
   );
 }

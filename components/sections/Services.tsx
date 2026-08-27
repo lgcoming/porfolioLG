@@ -1,54 +1,31 @@
-import { Bot, Code2, Gauge, LifeBuoy } from "lucide-react";
-import { Reveal } from "@/components/motion/Reveal";
+import { ArrowUpRight } from "lucide-react";
+import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { services } from "@/data/services";
-import type { Service } from "@/types/content";
-
-const icons = {
-  web: Code2,
-  ai: Bot,
-  growth: Gauge,
-  support: LifeBuoy,
-} satisfies Record<Service["category"], typeof Code2>;
 
 export function Services() {
   return (
-    <section id="services" className="section services" aria-labelledby="services-heading">
-      <div className="container">
-        <div>
-          <SectionHeading
-            headingId="services-heading"
-            index="04 / Capacidades"
-            title="Servicios"
-            description="Desde una web nueva hasta la automatización que la conecta con el resto de tu negocio."
-          />
-        </div>
-
-        <div className="services-list">
-          {services.map((service, index) => {
-            const Icon = icons[service.category];
-            return (
-              <Reveal key={service.title} delay={Math.min(index * 0.025, 0.16)}>
-                <a className="service-item" href="#contact" data-cursor="HABLAR">
-                  <span className="service-number">{String(index + 1).padStart(2, "0")}</span>
-                  <span className="service-icon" aria-hidden="true">
-                    <Icon />
-                  </span>
-                  <span className="service-copy">
-                    <span className="service-title-row">
-                      <h3>{service.title}</h3>
-                      {service.status ? <small>{service.status}</small> : null}
-                    </span>
-                    <span>{service.description}</span>
-                  </span>
-                  <span className="service-arrow" aria-hidden="true">
-                    ↗
-                  </span>
-                </a>
-              </Reveal>
-            );
-          })}
-        </div>
+    <section id="services" className="page-section services-section" aria-labelledby="services-title">
+      <ScrollReveal variant="mask">
+        <div id="services-title"><SectionHeading index="04" eyebrow="CAPACIDADES" title="Servicios" /></div>
+      </ScrollReveal>
+      <div className="services-list">
+        {services.map((service, index) => (
+          <ScrollReveal
+            key={service.title}
+            axis="x"
+            direction={index % 2 === 0 ? -1 : 1}
+            variant="slide"
+            delay={(index % 3) * 0.018}
+          >
+            <a className="service-row" href="#contact">
+              <span className="service-index">{String(index + 1).padStart(2, "0")}</span>
+              <h3>{service.title}</h3>
+              <p>{service.description}</p>
+              <ArrowUpRight aria-hidden="true" size={23} strokeWidth={1.35} />
+            </a>
+          </ScrollReveal>
+        ))}
       </div>
     </section>
   );

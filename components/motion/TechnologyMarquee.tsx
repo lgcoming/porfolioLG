@@ -1,100 +1,142 @@
 "use client";
 
+import { Palette } from "lucide-react";
 import {
-  useAnimationFrame,
+  motion,
   useMotionValue,
   useMotionValueEvent,
   useScroll,
-  useSpring,
-  useVelocity,
+  type MotionValue,
 } from "motion/react";
-import * as m from "motion/react-m";
 import { useEffect, useRef } from "react";
-import { useHydratedReducedMotion } from "@/lib/use-reduced-motion";
+import {
+  siAngular,
+  siClaude,
+  siGithub,
+  siGooglegemini,
+  siMake,
+  siMongodb,
+  siMysql,
+  siN8n,
+  siNextdotjs,
+  siNodedotjs,
+  siReact,
+  siTailwindcss,
+  siTypescript,
+  siWordpress,
+} from "simple-icons";
+import { technologies } from "@/data/technologies";
 
-type TechnologyMarqueeProps = {
-  readonly rows: readonly (readonly string[])[];
+type Technology = (typeof technologies)[number];
+
+const technologyIcons: Partial<Record<Technology, { path: string }>> = {
+  "Next.js": siNextdotjs,
+  React: siReact,
+  Angular: siAngular,
+  "Node.js": siNodedotjs,
+  TypeScript: siTypescript,
+  Tailwind: siTailwindcss,
+  Gemini: siGooglegemini,
+  Claude: siClaude,
+  N8N: siN8n,
+  Make: siMake,
+  WordPress: siWordpress,
+  MySQL: siMysql,
+  MongoDB: siMongodb,
+  GitHub: siGithub,
 };
 
 type MarqueeRowProps = {
-  readonly items: readonly string[];
-  readonly direction: -1 | 1;
+  items: Technology[];
+  rowIndex: number;
+  scrollY: MotionValue<number>;
 };
 
-function MarqueeRow({ items, direction }: MarqueeRowProps) {
-  const rowRef = useRef<HTMLDivElement>(null);
-  const groupRef = useRef<HTMLDivElement>(null);
-  const widthRef = useRef(0);
-  const visibleRef = useRef(true);
-  const velocityRef = useRef(0);
-  const initializedRef = useRef(false);
-  const x = useMotionValue(0);
-  const reduceMotion = useHydratedReducedMotion();
-  const { scrollY } = useScroll();
-  const scrollVelocity = useVelocity(scrollY);
-  const smoothVelocity = useSpring(scrollVelocity, { stiffness: 80, damping: 24, mass: 0.35 });
+function wrapLoop(value: number, width: number) {
+  if (!width) return value;
+  return ((value + width) % width + width) % width - width;
+}
 
-  useMotionValueEvent(smoothVelocity, "change", (latest) => {
-    velocityRef.current = latest;
-  });
+function TechnologyIcon({ technology }: { technology: Technology }) {
+  const icon = technologyIcons[technology];
+
+  if (!icon) {
+    return <Palette className="technology-icon" aria-hidden="true" strokeWidth={1.65} />;
+  }
+
+  return (
+    <svg className="technology-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d={icon.path} fill="currentColor" />
+    </svg>
+  );
+}
+
+function MarqueeRow({ items, rowIndex, scrollY }: MarqueeRowProps) {
+  const groupRef = useRef<HTMLDivElement>(null);
+  const groupWidth = useRef(0);
+  const previousScroll = useRef(0);
+  const x = useMotionValue(0);
+  const speed = [0.72, -0.46, 0.58][rowIndex] ?? 0.5;
+  const initialProgress = [1, 0.62, 0.82][rowIndex] ?? 1;
 
   useEffect(() => {
-    const row = rowRef.current;
     const group = groupRef.current;
-    if (!row || !group) return;
+    if (!group) return;
 
-    const resizeObserver = new ResizeObserver(([entry]) => {
-      widthRef.current = entry?.contentRect.width ?? 0;
-      if (!initializedRef.current && direction === 1) x.set(-widthRef.current);
-      initializedRef.current = true;
-    });
-    const intersectionObserver = new IntersectionObserver(([entry]) => {
-      visibleRef.current = entry?.isIntersecting ?? false;
-    });
-
-    resizeObserver.observe(group);
-    intersectionObserver.observe(row);
-    return () => {
-      resizeObserver.disconnect();
-      intersectionObserver.disconnect();
+    const measure = () => {
+      groupWidth.current = group.getBoundingClientRect().width;
+      x.set(-groupWidth.current * initialProgress);
     };
-  }, [direction, x]);
+    const observer = new ResizeObserver(measure);
+    observer.observe(group);
+    previousScroll.current = scrollY.get();
+    measure();
+    return () => observer.disconnect();
+  }, [initialProgress, scrollY, x]);
 
-  useAnimationFrame((_time, delta) => {
-    if (reduceMotion || !visibleRef.current || widthRef.current === 0) return;
-
-    const boost = Math.min(72, Math.abs(velocityRef.current) * 0.018);
-    const distance = direction * (24 + boost) * (delta / 1000);
-    let next = x.get() + distance;
-
-    if (direction === -1 && next <= -widthRef.current) next += widthRef.current;
-    if (direction === 1 && next >= 0) next -= widthRef.current;
-    x.set(next);
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    if (!groupWidth.current) return;
+    const delta = latest - previousScroll.current;
+    previousScroll.current = latest;
+    x.set(wrapLoop(x.get() + delta * speed, groupWidth.current));
   });
 
   return (
-    <div ref={rowRef} className="marquee-row">
-      <m.div className="marquee-track" style={reduceMotion ? undefined : { x }}>
-        {[0, 1].map((copy) => (
-          <div ref={copy === 0 ? groupRef : undefined} className="marquee-group" key={copy} aria-hidden={copy === 1}>
-            {items.map((item, index) => (
-              <span className="technology-chip" key={`${copy}-${item}`} data-cursor="STACK">
-                <b>{String(index + 1).padStart(2, "0")}</b>
-                {item}
+    <div className="technology-row">
+      <motion.div className="technology-track" style={{ x }}>
+        {[0, 1, 2].map((groupIndex) => (
+          <div
+            ref={groupIndex === 0 ? groupRef : undefined}
+            className="technology-group"
+            data-duplicate={groupIndex > 0}
+            aria-hidden={groupIndex > 0 ? "true" : undefined}
+            key={groupIndex}
+          >
+            {items.map((technology) => (
+              <span className="technology-item" key={technology}>
+                <TechnologyIcon technology={technology} />
+                <span className="technology-label">{technology}</span>
               </span>
             ))}
           </div>
         ))}
-      </m.div>
+      </motion.div>
     </div>
   );
 }
 
-export function TechnologyMarquee({ rows }: TechnologyMarqueeProps) {
+export function TechnologyMarquee() {
+  const { scrollY } = useScroll();
+  const rowCount = 3;
+  const itemsPerRow = Math.ceil(technologies.length / rowCount);
+  const rows = Array.from({ length: rowCount }, (_, index) => (
+    technologies.slice(index * itemsPerRow, (index + 1) * itemsPerRow)
+  ));
+
   return (
-    <div className="technology-marquee" role="group" aria-label="Tecnologías utilizadas">
-      {rows.map((row, index) => (
-        <MarqueeRow key={index} items={row} direction={index % 2 === 0 ? -1 : 1} />
+    <div className="technology-marquee">
+      {rows.map((row, rowIndex) => (
+        <MarqueeRow items={row} rowIndex={rowIndex} scrollY={scrollY} key={row[0]} />
       ))}
     </div>
   );

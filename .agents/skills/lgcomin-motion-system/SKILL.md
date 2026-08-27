@@ -1,49 +1,60 @@
 ---
 name: lgcomin-motion-system
-description: Implement or audit animation, pointer, scroll, SVG, transition, and reduced-motion behavior for the LGCOMIN portfolio.
+description: "Diseña, implementa y revisa el sistema de movimiento de LGCOMIN: typing, hero reactivo, scroll, cursor, parallax y reduced motion."
 ---
 
-# LGCOMIN motion system
+# LGCOMIN Motion System
 
-Motion demonstrates craft while preserving reading, input responsiveness and native scroll.
+Aplica esta skill a cualquier animación o interacción del portfolio LGCOMIN.
 
-## Tool choice
+## Jerarquía del movimiento
 
-- Use CSS for simple hover, focus and state transitions.
-- Use Motion for coordinated React animation, presence, springs, MotionValues and scroll transforms.
-- Use GSAP + ScrollTrigger only when a specific pinned/timeline behavior remains substantially clearer than a Motion solution. Document the reason before adding it.
-- Do not add smooth-scroll libraries unless user testing proves a benefit.
+1. Identidad y legibilidad.
+2. Respuesta directa a la interacción.
+3. Continuidad vinculada al scroll.
+4. Decoración ambiental.
 
-## Timing and feel
+El movimiento nunca controla el scroll nativo ni retrasa el acceso al contenido.
 
-- Intro: 1.4–1.8 s total, content present in HTML from first render.
-- Microinteractions: 160–320 ms. Section reveals: 400–700 ms.
-- Default ease: `[0.22, 1, 0.36, 1]`; use springs for tracked cursor/velocity values, not every entrance.
-- Stagger only meaningful peers, usually 35–80 ms, and cap long lists.
-- Pointer response stays subtle: roughly 2–4° rotation and 5–15 px translation.
+## Entrada y typing
 
-## Performance invariants
+- “Luis Gomez” se construye carácter a carácter y conserva un cursor visible al terminar.
+- La secuencia completa dura aproximadamente 1.5–2.5 s: logo breve, typing, profesión, descripción y CTA.
+- El typing es exclusivo del nombre; no repetirlo en titulares.
+- Con reduced motion, mostrar el nombre completo de inmediato.
 
-- Animate transform and opacity first; use clip-path only for bounded reveals.
-- Never update React state on every pointermove or scroll event.
-- Use MotionValues or a single RAF loop. Read layout outside hot loops where possible.
-- Pause offscreen marquee/ambient work with visibility/intersection signals.
-- Clean every listener, observer, RAF, timer and animation control.
-- Avoid continuous filter, large blur, box-shadow, width, height, top, left and margin animation.
-- Apply `will-change` only during an active transition.
+## Hero background
 
-## Cursor and scroll
+- Usar Canvas 2D ligero con pocos nodos, conexiones cercanas y trazos curvos inspirados en el logo.
+- Guardar puntero, tamaño y partículas en refs; nunca llamar a `setState` por frame.
+- Ejecutar con `requestAnimationFrame`, limitar DPR, usar `ResizeObserver` solo si aporta valor y cancelar todo en cleanup.
+- Pausar fuera del viewport y cuando la pestaña no esté visible.
+- En `pointer: fine`, aplicar repulsión/atracción suave; en móvil, reducir densidad y omitir interacción.
 
-- Enable custom cursor only for `(pointer: fine) and (hover: hover)`.
-- Keep the native cursor semantics understandable; contextual labels such as `VER` are brief and small.
-- Do not intercept or reshape wheel/trackpad physics.
-- Velocity may modulate marquee or parallax within strict clamps and should settle via damping.
+## Scroll bidireccional
 
-## Reduced motion
+- Derivar las transformaciones de un progreso continuo de scroll para que se inviertan al subir.
+- Usar `useScroll`, `useTransform`, `useSpring` y `useVelocity` cuando aporten una relación observable.
+- Evitar animaciones `once` en efectos que deban reaccionar de vuelta.
+- Reveal recomendado: clip/máscara, desplazamiento corto, blur leve y opacidad; no repetir exactamente el mismo patrón en todas las secciones.
 
-When `prefers-reduced-motion: reduce` is active: skip the intro sequence, hide custom cursor, remove parallax/3D/pinned behavior, stop marquees, shorten reveals to a near-immediate fade and expose all content without waiting for intersection.
+## Velocity y parallax
 
-## Audit
+- La velocidad puede alterar sutilmente marquees, líneas y capas ambientales.
+- Suavizarla con spring/damping y limitar el rango para evitar saltos.
+- Mantener el parallax corto y basado en `transform`.
 
-Search Motion/CSS/GSAP usage, identify layout/paint-heavy animation, verify listeners and RAF cleanup, test reduced motion, check that offscreen loops pause, and inspect the browser for long tasks or console warnings.
+## Cursor y magnetic
 
+- Solo en `pointer: fine` y sin reduced motion.
+- Cursor discreto: punto/halo; contexto `VER ↗` sobre proyectos.
+- Magnetic solo en CTAs e iconos seleccionados, con desplazamiento máximo de 4–8 px.
+- No ocultar el cursor nativo hasta confirmar que el cursor custom está activo.
+
+## Rendimiento y accesibilidad
+
+- Priorizar `transform` y `opacity`.
+- No provocar lecturas/escrituras de layout intercaladas.
+- Desactivar movimiento continuo con `prefers-reduced-motion`.
+- En móvil: menos nodos, sin cursor, sin magnetic y parallax mínimo.
+- Limpiar frames, observers y listeners en cada desmontaje.

@@ -1,57 +1,97 @@
+"use client";
+
 import { ArrowDown, ArrowUpRight } from "lucide-react";
-import Image from "next/image";
-import { AmbientHero } from "@/components/motion/AmbientHero";
+import { motion, useScroll, useSpring, useTransform, type Variants } from "motion/react";
+import { useRef } from "react";
+import { HeroField } from "@/components/motion/HeroField";
+import { Magnetic } from "@/components/motion/Magnetic";
+import { TypewriterName } from "@/components/motion/TypewriterName";
+
+const stageVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      delayChildren: 0.05,
+      staggerChildren: 0.13,
+    },
+  },
+};
+
+const elementVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 24,
+    scale: 0.985,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.68, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
 export function Hero() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 28, mass: 0.55 });
+  const stageY = useTransform(progress, [0, 1], [0, -82]);
+  const stageScale = useTransform(progress, [0, 1], [1, 0.955]);
+  const stageOpacity = useTransform(progress, [0, 0.78, 1], [1, 0.9, 0]);
+  const fieldY = useTransform(progress, [0, 1], [0, 126]);
+  const fieldScale = useTransform(progress, [0, 1], [1, 1.17]);
+  const gridY = useTransform(progress, [0, 1], [0, 82]);
+  const gridScale = useTransform(progress, [0, 1], [1, 1.08]);
+  const peripheralOpacity = useTransform(progress, [0, 0.72, 1], [1, 0.72, 0]);
+
   return (
-    <section id="hero" className="hero" aria-labelledby="hero-title">
-      <AmbientHero />
-      <Image
-        className="hero-geometry"
-        src="/logo-lg-ui.webp"
-        alt=""
-        width={720}
-        height={720}
-        loading="eager"
-        fetchPriority="high"
-        unoptimized
-        sizes="(max-width: 640px) 100vw, 55vw"
-        aria-hidden="true"
-      />
+    <motion.section ref={sectionRef} id="hero" className="hero-section" aria-labelledby="hero-title">
+      <motion.div className="hero-field-layer" style={{ y: fieldY, scale: fieldScale }}>
+        <HeroField />
+      </motion.div>
+      <motion.div className="hero-grid" style={{ y: gridY, scale: gridScale }} aria-hidden="true" />
+      <div className="hero-vignette" aria-hidden="true" />
 
-      <div className="container hero-inner">
-        <div className="hero-meta hero-enter hero-enter-1" aria-hidden="true">
-          <span>LG / 2026</span>
-          <span>Barcelona · España</span>
-        </div>
+      <motion.div
+        className="hero-content"
+        variants={stageVariants}
+        initial="hidden"
+        animate="visible"
+        style={{ y: stageY, scale: stageScale, opacity: stageOpacity }}
+      >
+        <motion.p className="hero-kicker" variants={elementVariants}><span>00</span> Portfolio</motion.p>
+        <h1 id="hero-title"><TypewriterName /></h1>
+        <motion.h2 variants={elementVariants}>Full Stack Web Developer</motion.h2>
+        <motion.p className="hero-description" variants={elementVariants}>
+          Desarrollo impulsado por <strong>Inteligencia Artificial</strong>, pensado para personas y negocios que buscan destacar y mejorar con tecnología de última generación.
+        </motion.p>
+        <motion.div className="hero-actions" variants={elementVariants}>
+          <Magnetic>
+            <motion.a
+              className="primary-cta"
+              href="#projects"
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 460, damping: 28 }}
+            >
+              <span>Ver proyectos</span>
+              <span className="primary-cta-icon" aria-hidden="true">
+                <ArrowUpRight size={18} strokeWidth={1.6} />
+              </span>
+            </motion.a>
+          </Magnetic>
+          <a className="text-link" href="#contact">Hablemos <span>↗</span></a>
+        </motion.div>
+      </motion.div>
 
-        <div className="hero-copy">
-          <p className="hero-kicker hero-enter hero-enter-2">Full Stack Web Developer</p>
-          <h1 id="hero-title">
-            Luis Gómez
-            <span>Web, IA y tecnología con intención.</span>
-          </h1>
-          <p className="hero-description hero-enter hero-enter-4">
-            Desarrollo impulsado por <strong>Inteligencia Artificial</strong>, pensado para personas y negocios que
-            buscan destacar y mejorar con tecnología de última generación.
-          </p>
-          <div className="hero-actions hero-enter hero-enter-5">
-            <a className="button button-primary" href="#projects" data-cursor="VER">
-              Ver proyectos <ArrowUpRight aria-hidden="true" size={16} />
-            </a>
-            <a className="button button-secondary" href="#contact" data-cursor="HABLAR">
-              Cuéntame tu idea
-            </a>
-          </div>
-        </div>
-
-        <div className="hero-foot hero-enter hero-enter-5">
-          <p className="mono">Desarrollo web · IA · Automatización</p>
-          <a href="#about" aria-label="Explorar: continuar a la sección Sobre mí">
-            Explorar <ArrowDown aria-hidden="true" size={15} />
-          </a>
-        </div>
-      </div>
-    </section>
+      <motion.a className="scroll-cue" href="#about" aria-label="Ir a Sobre mí" style={{ opacity: peripheralOpacity }}>
+        <span>SCROLL</span>
+        <ArrowDown aria-hidden="true" size={17} />
+      </motion.a>
+      <motion.span className="hero-coordinate hero-coordinate-left" style={{ opacity: peripheralOpacity }} aria-hidden="true">41.3874° N</motion.span>
+      <motion.span className="hero-coordinate hero-coordinate-right" style={{ opacity: peripheralOpacity }} aria-hidden="true">02.1686° E</motion.span>
+    </motion.section>
   );
 }

@@ -1,23 +1,22 @@
+import { HeroField } from "@/components/motion/HeroField";
 import { ProjectCard } from "@/components/motion/ProjectCard";
+import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { projects } from "@/data/projects";
 
 export function Projects() {
   return (
-    <section id="projects" className="section projects" aria-labelledby="projects-heading">
-      <div className="container">
-        <div>
-          <SectionHeading
-            headingId="projects-heading"
-            index="03 / Trabajo"
-            title="Últimos proyectos"
-            description="Ocho proyectos reales con contextos distintos, unidos por una ejecución clara, responsiva y orientada a producto."
-          />
-        </div>
-
-        <div className="projects-grid">
+    <section id="projects" className="page-section projects-section" aria-labelledby="projects-title">
+      <div className="section-constellation" aria-hidden="true">
+        <HeroField density={1.35} />
+      </div>
+      <div className="projects-shell">
+        <ScrollReveal variant="mask">
+          <div id="projects-title"><SectionHeading index="03" eyebrow="TRABAJO" title="Últimos Proyectos" /></div>
+        </ScrollReveal>
+        <div className="projects-list">
           {projects.map((project, index) => (
-            <ProjectCard key={project.name} project={project} index={index} />
+            <ProjectCard key={project.title} project={project} index={index} />
           ))}
         </div>
       </div>

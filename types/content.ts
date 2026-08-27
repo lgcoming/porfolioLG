@@ -1,27 +1,16 @@
-export type NavigationItem = {
-  readonly label: string;
-  readonly href: `#${string}`;
-};
-
-export type Technology = {
-  readonly name: string;
-  readonly group: "web" | "ai" | "tools" | "data";
-};
-
 export type Project = {
-  readonly name: string;
-  readonly description: string;
-  readonly stack: readonly string[];
-  readonly href: `https://${string}`;
-  readonly image: `/${string}`;
-  readonly imageAlt: string;
-  readonly imageFit?: "cover" | "contain";
-  readonly imageSurface?: "light" | "warm" | "dark";
+  title: string;
+  description: string;
+  href: string;
+  image: string;
+  imageAlt?: string;
+  imageFit?: "cover" | "contain";
+  imageSurface?: "dark" | "light" | "warm";
+  imagePadding?: "compact" | "standard" | "generous";
+  stack: readonly string[];
 };
 
 export type Service = {
-  readonly title: string;
-  readonly description: string;
-  readonly category: "web" | "ai" | "growth" | "support";
-  readonly status?: "Próximamente";
+  title: string;
+  description: string;
 };

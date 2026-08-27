@@ -1,25 +1,20 @@
+import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { TechnologyMarquee } from "@/components/motion/TechnologyMarquee";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { technologyRows } from "@/data/technologies";
 
 export function Technologies() {
   return (
-    <section id="technologies" className="section technologies" aria-labelledby="technologies-heading">
-      <div className="container">
-        <SectionHeading
-          headingId="technologies-heading"
-          index="02 / Stack"
-          title="Tecnologías"
-          description="Herramientas reales para construir, integrar y optimizar productos digitales de extremo a extremo."
-        />
+    <section id="technologies" className="page-section technologies-section" aria-labelledby="technologies-title">
+      <div className="section-shell">
+        <ScrollReveal variant="mask">
+          <div id="technologies-title"><SectionHeading index="02" eyebrow="STACK" title="Tecnologías" /></div>
+        </ScrollReveal>
+        <ScrollReveal className="technologies-intro" axis="x" variant="slide" delay={0.04}>
+          <p>Herramientas de última generación para construir productos rápidos, eficientes, seguros y escalables.</p>
+        </ScrollReveal>
       </div>
-
-      <TechnologyMarquee rows={technologyRows.map((row) => row.map(({ name }) => name))} />
-
-      <div className="container technologies-note">
-        <p>…y muchas más.</p>
-        <span>Stack seleccionado según el problema, no por tendencia.</span>
-      </div>
+      <TechnologyMarquee />
+      <p className="technologies-more">…y muchas más.</p>
     </section>
   );
 }

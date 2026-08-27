@@ -1,79 +1,71 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
-import { MotionProvider } from "@/components/motion/MotionProvider";
-import { PreloadResources } from "./preload-resources";
+import { JetBrains_Mono, Quantico } from "next/font/google";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/geist-sans.woff2",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
   display: "swap",
 });
 
-const geistMono = localFont({
-  src: "./fonts/geist-mono.woff2",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const display = Quantico({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-display",
   display: "swap",
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lgcomin.com";
+const description =
+  "Portfolio de Luis Gomez, desarrollador Full Stack especializado en desarrollo web, inteligencia artificial y automatización.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Luis Gómez — Full Stack Web Developer",
-  description:
-    "Portfolio profesional de Luis Gómez, desarrollador web especializado en experiencias modernas, inteligencia artificial y optimización digital.",
-  alternates: { canonical: "/" },
-  authors: [{ name: "Luis Gómez", url: siteUrl }],
-  creator: "Luis Gómez",
-  keywords: [
-    "Luis Gómez",
-    "Full Stack Web Developer",
-    "desarrollo web",
-    "Next.js",
-    "inteligencia artificial",
-    "automatización IA",
-  ],
-  icons: {
-    icon: "/logo-lg.png",
-    shortcut: "/logo-lg.png",
-    apple: "/logo-lg.png",
+  title: {
+    default: "LGComin | Porfolio",
+    template: "%s | LGCOMIN",
   },
+  description,
+  alternates: { canonical: "/" },
+  keywords: [
+    "Luis Gomez",
+    "Full Stack Developer",
+    "desarrollo web",
+    "inteligencia artificial",
+    "automatización",
+    "portfolio",
+  ],
+  authors: [{ name: "Luis Gomez", url: siteUrl }],
+  creator: "Luis Gomez",
   openGraph: {
     type: "website",
     locale: "es_ES",
-    url: "/",
-    siteName: "LG / Luis Gómez",
-    title: "Luis Gómez — Full Stack Web Developer",
-    description:
-      "Desarrollo web, inteligencia artificial y tecnología pensada para personas y empresas.",
-    images: [{ url: "/logo-lg.png", width: 1254, height: 1254, alt: "Logo LG" }],
+    url: siteUrl,
+    siteName: "LGCOMIN",
+    title: "Luis Gomez — Full Stack Web Developer",
+    description,
+    images: [{ url: "/logo-lg.png", width: 1254, height: 1254, alt: "Logo LGCOMIN" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Luis Gómez — Full Stack Web Developer",
-    description:
-      "Desarrollo web, inteligencia artificial y tecnología pensada para personas y empresas.",
+    title: "Luis Gomez — Full Stack Web Developer",
+    description,
     images: ["/logo-lg.png"],
   },
+  icons: { icon: "/logo-lg.png", apple: "/logo-lg.png" },
 };
 
 export const viewport: Viewport = {
-  colorScheme: "dark",
-  themeColor: "#070a09",
   width: "device-width",
   initialScale: 1,
+  themeColor: "#000000",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`} data-scroll-behavior="smooth">
-      <body>
-        <PreloadResources />
-        <MotionProvider>{children}</MotionProvider>
-      </body>
+    <html lang="es" className={`${mono.variable} ${display.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

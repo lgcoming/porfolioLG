@@ -1,103 +1,67 @@
 "use client";
 
+import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
-import { AnimatePresence, useScroll } from "motion/react";
-import * as m from "motion/react-m";
-import { Menu, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { navigation } from "@/data/navigation";
 
 export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState("hero");
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll();
+  const [active, setActive] = useState("hero");
+  const [open, setOpen] = useState(false);
+  const [compact, setCompact] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 32);
+    const onScroll = () => setCompact(window.scrollY > 40);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
-  useEffect(() => {
-    const sectionIds = ["hero", ...navigation.map(({ href }) => href.slice(1))];
-    const sections = sectionIds
+    const sections = ["hero", ...navigation.map((item) => item.href.slice(1))]
       .map((id) => document.getElementById(id))
-      .filter((section): section is HTMLElement => section !== null);
-
+      .filter((section): section is HTMLElement => Boolean(section));
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible?.target.id) setActiveSection(visible.target.id);
+        if (visible) setActive(visible.target.id);
       },
-      { rootMargin: "-22% 0px -62%", threshold: [0.08, 0.25, 0.5] },
+      { rootMargin: "-30% 0px -55%", threshold: [0, 0.2, 0.5] },
     );
-
     sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      observer.disconnect();
+    };
   }, []);
 
   useEffect(() => {
-    if (!isOpen) return;
-
-    const panel = menuRef.current;
-    const focusable = panel?.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    );
-    focusable?.[0]?.focus();
-
+    if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-        menuButtonRef.current?.focus();
-        return;
-      }
-
-      if (event.key !== "Tab" || !focusable?.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
+      if (event.key === "Escape") setOpen(false);
     };
-
-    document.addEventListener("keydown", onKeyDown);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
-  const closeMenu = () => setIsOpen(false);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   return (
-    <header className={`site-header${isScrolled ? " is-scrolled" : ""}`}>
-      <nav className="nav-shell container" aria-label="Navegación principal">
-        <a className="brand-mark" href="#hero" aria-label="LG — ir al inicio" data-cursor="INICIO">
-          <Image src="/logo-lg-ui.webp" alt="" width={48} height={48} loading="eager" unoptimized sizes="48px" />
+    <motion.header
+      className="site-header"
+      data-compact={compact}
+      initial={false}
+      animate={{ y: 0 }}
+    >
+      <nav className="navbar" aria-label="Navegación principal">
+        <a className="brand" href="#hero" aria-label="LGCOMIN — inicio">
+          <Image src="/logo-lg.png" alt="" width={64} height={64} preload sizes="64px" />
         </a>
 
-        <ul className="nav-links" role="list">
+        <ul className="nav-links">
           {navigation.map((item) => {
             const id = item.href.slice(1);
             return (
               <li key={item.href}>
-                <a
-                  href={item.href}
-                  className={activeSection === id ? "is-active" : undefined}
-                  aria-current={activeSection === id ? "location" : undefined}
-                  data-cursor="IR"
-                >
+                <a href={item.href} data-active={active === id} aria-current={active === id ? "location" : undefined}>
                   {item.label}
                 </a>
               </li>
@@ -106,47 +70,40 @@ export function Navbar() {
         </ul>
 
         <button
-          ref={menuButtonRef}
-          className="menu-trigger"
+          className="menu-toggle"
           type="button"
-          aria-label={isOpen ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={isOpen}
-          aria-controls="mobile-navigation"
-          onClick={() => setIsOpen((open) => !open)}
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={open}
+          aria-controls="mobile-menu"
+          onClick={() => setOpen((value) => !value)}
         >
-          {isOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+          <span className="menu-toggle-glyph" aria-hidden="true">
+            <span className="menu-toggle-line menu-toggle-line-top" />
+            <span className="menu-toggle-line menu-toggle-line-middle" />
+            <span className="menu-toggle-line menu-toggle-line-bottom" />
+          </span>
         </button>
       </nav>
 
       <AnimatePresence>
-        {isOpen ? (
-          <m.div
-            ref={menuRef}
-            id="mobile-navigation"
-            className="mobile-nav"
-            initial={{ opacity: 0, transform: "translateY(-12px)" }}
-            animate={{ opacity: 1, transform: "translateY(0px)" }}
-            exit={{ opacity: 0, transform: "translateY(-8px)" }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        {open ? (
+          <motion.div
+            id="mobile-menu"
+            className="mobile-menu"
+            initial={{ opacity: 0, clipPath: "inset(0 0 100% 0)" }}
+            animate={{ opacity: 1, clipPath: "inset(0 0 0% 0)" }}
+            exit={{ opacity: 0, clipPath: "inset(0 0 100% 0)" }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
           >
-            <ol>
-              {navigation.map((item, index) => (
-                <li key={item.href}>
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <a href={item.href} onClick={closeMenu}>
-                    {item.label}
-                  </a>
-                </li>
-              ))}
-            </ol>
-            <a className="mobile-nav-contact" href="mailto:luis.gomez.comin@gmail.com">
-              luis.gomez.comin@gmail.com
-            </a>
-          </m.div>
+            {navigation.map((item, index) => (
+              <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
+                <span>0{index + 1}</span>
+                {item.label}
+              </a>
+            ))}
+          </motion.div>
         ) : null}
       </AnimatePresence>
-
-      <m.div className="scroll-progress" style={{ scaleX: scrollYProgress }} aria-hidden="true" />
-    </header>
+    </motion.header>
   );
 }
