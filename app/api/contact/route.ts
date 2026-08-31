@@ -13,6 +13,13 @@ const MIN_FORM_TIME_MS = 1_800;
 const MAX_FORM_AGE_MS = 24 * 60 * 60 * 1000;
 const attempts = new Map<string, number[]>();
 
+function normalizeEnvironmentValue(value: string | undefined) {
+  const trimmed = value?.trim() ?? "";
+  const quotedValue = trimmed.match(/^(["'])(.*)\1$/);
+
+  return quotedValue ? quotedValue[2].trim() : trimmed;
+}
+
 function getIdentifier(request: Request) {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
     ?? request.headers.get("x-real-ip")
@@ -88,8 +95,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const recipient = process.env.CONTACT_TO_EMAIL?.trim() || contactDetails.email;
-  const sender = process.env.CONTACT_FROM_EMAIL?.trim()
+  const recipient = normalizeEnvironmentValue(process.env.CONTACT_TO_EMAIL) || contactDetails.email;
+  const sender = normalizeEnvironmentValue(process.env.CONTACT_FROM_EMAIL)
     || "LGCOMIN Portfolio <onboarding@resend.dev>";
   const idempotencyKey = createHash("sha256")
     .update(`${Math.floor(now / WINDOW_MS)}:${parsed.data.email}:${parsed.data.subject}:${parsed.data.message}`)
@@ -128,10 +135,20 @@ export async function POST(request: Request) {
 
     if (error) throw new Error(error.message);
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
     console.error(
       "Contact email delivery failed",
-      error instanceof Error ? error.message : "Unknown error",
+      errorMessage,
     );
+
+    if (errorMessage.includes("Invalid `from` field")) {
+      return NextResponse.json(
+        { message: "El remitente del formulario no está configurado correctamente. Contacta por email directo mientras se corrige." },
+        { status: 503 },
+      );
+    }
+
     return NextResponse.json(
       { message: "No he podido enviar el mensaje ahora mismo. Prueba de nuevo o utiliza el email directo." },
       { status: 502 },

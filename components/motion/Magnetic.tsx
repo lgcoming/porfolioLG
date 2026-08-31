@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
+import { motion, useMotionValue, useSpring } from "motion/react";
 import type { PointerEvent, ReactNode } from "react";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 type MagneticProps = {
   children: ReactNode;
@@ -11,7 +12,7 @@ type MagneticProps = {
 export function Magnetic({ children, className }: MagneticProps) {
   const x = useSpring(useMotionValue(0), { stiffness: 320, damping: 24, mass: 0.45 });
   const y = useSpring(useMotionValue(0), { stiffness: 320, damping: 24, mass: 0.45 });
-  const reducedMotion = useReducedMotion();
+  const reducedMotion = useHydratedReducedMotion();
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
     if (reducedMotion || event.pointerType !== "mouse") return;
@@ -34,4 +35,3 @@ export function Magnetic({ children, className }: MagneticProps) {
     </motion.div>
   );
 }
-

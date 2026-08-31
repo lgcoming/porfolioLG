@@ -5,16 +5,16 @@ import {
   AnimatePresence,
   motion,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
 } from "motion/react";
 import { useRef, useState } from "react";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 const SHOW_AT_PROGRESS = 0.3;
 
 export function BackToTop() {
   const { scrollYProgress } = useScroll();
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = useHydratedReducedMotion();
   const visibleRef = useRef(false);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -41,7 +41,6 @@ export function BackToTop() {
           type="button"
           aria-label="Volver arriba"
           title="Volver arriba"
-          data-cursor="action"
           onClick={scrollToTop}
           initial={prefersReducedMotion ? false : { opacity: 0, y: 14, scale: 0.88 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}

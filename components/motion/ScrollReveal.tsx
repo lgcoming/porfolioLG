@@ -8,6 +8,7 @@ import {
   useTransform,
 } from "motion/react";
 import { useRef, type ReactNode } from "react";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 type ScrollRevealProps = {
   children: ReactNode;
@@ -27,6 +28,7 @@ export function ScrollReveal({
   delay = 0,
 }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useHydratedReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start 94%", "end 8%"],
@@ -68,7 +70,7 @@ export function ScrollReveal({
       ref={ref}
       className={classes}
       data-reveal-variant={variant}
-      style={{ x, y, opacity, scale, rotate, filter }}
+      style={prefersReducedMotion ? undefined : { x, y, opacity, scale, rotate, filter }}
     >
       {children}
     </motion.div>

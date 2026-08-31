@@ -8,7 +8,7 @@ import {
   useScroll,
   type MotionValue,
 } from "motion/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import {
   siAngular,
   siClaude,
@@ -26,6 +26,7 @@ import {
   siWordpress,
 } from "simple-icons";
 import { technologies } from "@/data/technologies";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 type Technology = (typeof technologies)[number];
 
@@ -45,6 +46,12 @@ const technologyIcons: Partial<Record<Technology, { path: string }>> = {
   MongoDB: siMongodb,
   GitHub: siGithub,
 };
+
+const ROW_COUNT = 3;
+const ITEMS_PER_ROW = Math.ceil(technologies.length / ROW_COUNT);
+const TECHNOLOGY_ROWS = Array.from({ length: ROW_COUNT }, (_, index) => (
+  technologies.slice(index * ITEMS_PER_ROW, (index + 1) * ITEMS_PER_ROW)
+));
 
 type MarqueeRowProps = {
   items: Technology[];
@@ -75,6 +82,8 @@ function MarqueeRow({ items, rowIndex, scrollY }: MarqueeRowProps) {
   const groupRef = useRef<HTMLDivElement>(null);
   const groupWidth = useRef(0);
   const previousScroll = useRef(0);
+  const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
+  const prefersReducedMotion = useHydratedReducedMotion();
   const x = useMotionValue(0);
   const speed = [0.72, -0.46, 0.58][rowIndex] ?? 0.5;
   const initialProgress = [1, 0.62, 0.82][rowIndex] ?? 1;
@@ -84,8 +93,10 @@ function MarqueeRow({ items, rowIndex, scrollY }: MarqueeRowProps) {
     if (!group) return;
 
     const measure = () => {
-      groupWidth.current = group.getBoundingClientRect().width;
-      x.set(-groupWidth.current * initialProgress);
+      const width = group.getBoundingClientRect().width;
+      groupWidth.current = width;
+      setDragConstraints({ left: -width * 2, right: 0 });
+      x.set(-width * initialProgress);
     };
     const observer = new ResizeObserver(measure);
     observer.observe(group);
@@ -95,15 +106,42 @@ function MarqueeRow({ items, rowIndex, scrollY }: MarqueeRowProps) {
   }, [initialProgress, scrollY, x]);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    if (!groupWidth.current) return;
     const delta = latest - previousScroll.current;
     previousScroll.current = latest;
+    if (prefersReducedMotion || !groupWidth.current) return;
     x.set(wrapLoop(x.get() + delta * speed, groupWidth.current));
   });
 
+  const normalizePosition = () => {
+    if (!groupWidth.current) return;
+    x.set(wrapLoop(x.get(), groupWidth.current));
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!groupWidth.current || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) return;
+
+    event.preventDefault();
+    const direction = event.key === "ArrowLeft" ? 1 : -1;
+    x.set(wrapLoop(x.get() + direction * 140, groupWidth.current));
+  };
+
   return (
-    <div className="technology-row">
-      <motion.div className="technology-track" style={{ x }}>
+    <div
+      className="technology-row"
+      role="group"
+      tabIndex={0}
+      aria-label={`Fila ${rowIndex + 1} de tecnologías. Arrastra horizontalmente o usa las flechas izquierda y derecha.`}
+      onKeyDown={handleKeyDown}
+    >
+      <motion.div
+        className="technology-track"
+        style={{ x }}
+        drag="x"
+        dragConstraints={dragConstraints}
+        dragElastic={0.06}
+        dragMomentum={false}
+        onDragEnd={normalizePosition}
+      >
         {[0, 1, 2].map((groupIndex) => (
           <div
             ref={groupIndex === 0 ? groupRef : undefined}
@@ -127,15 +165,10 @@ function MarqueeRow({ items, rowIndex, scrollY }: MarqueeRowProps) {
 
 export function TechnologyMarquee() {
   const { scrollY } = useScroll();
-  const rowCount = 3;
-  const itemsPerRow = Math.ceil(technologies.length / rowCount);
-  const rows = Array.from({ length: rowCount }, (_, index) => (
-    technologies.slice(index * itemsPerRow, (index + 1) * itemsPerRow)
-  ));
 
   return (
     <div className="technology-marquee">
-      {rows.map((row, rowIndex) => (
+      {TECHNOLOGY_ROWS.map((row, rowIndex) => (
         <MarqueeRow items={row} rowIndex={rowIndex} scrollY={scrollY} key={row[0]} />
       ))}
     </div>

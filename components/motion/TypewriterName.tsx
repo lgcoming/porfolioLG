@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 const NAME = "Luis Gómez";
 const KEYSTROKE_DELAYS = [112, 86, 124, 74, 138, 92, 118, 78, 106, 84];
 
 export function TypewriterName() {
+  const prefersReducedMotion = useHydratedReducedMotion();
   const [text, setText] = useState("");
   const [complete, setComplete] = useState(false);
 
   useEffect(() => {
+    if (prefersReducedMotion) return;
+
     let index = 0;
     let keystroke = 0;
     let start = 0;
@@ -49,13 +53,16 @@ export function TypewriterName() {
       window.clearTimeout(start);
       window.clearTimeout(keystroke);
     };
-  }, []);
+  }, [prefersReducedMotion]);
+
+  const renderedText = prefersReducedMotion ? NAME : text;
+  const renderedComplete = Boolean(prefersReducedMotion || complete);
 
   return (
-    <span className="typing-name" data-complete={complete} aria-label={NAME}>
+    <span className="typing-name" data-complete={renderedComplete} aria-label={NAME}>
       <span className="typing-ghost" aria-hidden="true">{NAME}</span>
       <span className="typing-live" aria-hidden="true">
-        {text}
+        {renderedText}
         <span className="typing-cursor" />
       </span>
     </span>

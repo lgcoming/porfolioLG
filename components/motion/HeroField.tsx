@@ -220,7 +220,7 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
       const rect = interactionHost.getBoundingClientRect();
       scrollState.progress = Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height)));
 
-      if (Math.abs(delta) > 0.1) {
+      if (visible && Math.abs(delta) > 0.1) {
         for (const node of nodes) {
           node.x += delta * (node.accent ? 0.075 : -0.045);
           node.y -= delta * (node.accent ? 0.022 : 0.012);
@@ -231,7 +231,7 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
         }
       }
 
-      if (reducedMotion) draw(performance.now());
+      if (reducedMotion && visible) draw(performance.now());
       else start();
     };
     const onVisibility = () => (document.hidden ? stop() : start());
@@ -239,7 +239,10 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
     const resizeObserver = new ResizeObserver(resize);
     const intersectionObserver = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
-      if (visible) start();
+      if (visible) {
+        if (reducedMotion) draw(performance.now());
+        else start();
+      }
       else stop();
     });
 

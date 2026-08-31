@@ -45,12 +45,7 @@ export function Navbar() {
   }, [open]);
 
   return (
-    <motion.header
-      className="site-header"
-      data-compact={compact}
-      initial={false}
-      animate={{ y: 0 }}
-    >
+    <header className="site-header" data-compact={compact}>
       <nav className="navbar" aria-label="Navegación principal">
         <a className="brand" href="#hero" aria-label="LGCOMIN — inicio">
           <Image src="/logo-lg.png" alt="" width={64} height={64} preload sizes="64px" />
@@ -104,6 +99,6 @@ export function Navbar() {
           </motion.div>
         ) : null}
       </AnimatePresence>
-    </motion.header>
+    </header>
   );
 }

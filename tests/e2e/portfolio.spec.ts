@@ -22,7 +22,7 @@ test("renders the complete portfolio and real project links", async ({ page }) =
   await expect(page.locator(".hero-sigil")).toHaveCount(0);
   await expect(page.locator(".hero-kicker")).not.toContainText("2026");
   await expect(page.locator(".contact-logo")).toHaveCount(0);
-  await expect(page.locator(".section-constellation")).toHaveCount(2);
+  await expect(page.locator(".section-constellation")).toHaveCount(1);
   await expect(page.getByRole("link", { name: "Contactar por WhatsApp" })).toHaveCount(1);
   await expect(page.getByText("+34 653 878 194")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Contactar por WhatsApp" })).toHaveAttribute(
@@ -115,6 +115,7 @@ test("typing, sizing, technology tape and project cards follow the visual brief"
   await expect(page.locator(".technology-row")).toHaveCount(3);
   await expect(page.locator(".technology-item i")).toHaveCount(0);
   await expect(page.locator(".technology-icon")).toHaveCount(45);
+  await expect(page.locator(".technology-row").first()).toHaveAttribute("tabindex", "0");
   const technologyColors = await page.locator(".technology-item").evaluateAll((items) => (
     [...new Set(items.map((item) => getComputedStyle(item).color))]
   ));
@@ -140,6 +141,21 @@ test("typing, sizing, technology tape and project cards follow the visual brief"
   expect(deltas[1]).toBeLessThan(-20);
   expect(deltas[2]).toBeGreaterThan(20);
   expect(new Set(deltas.map((delta) => Math.round(Math.abs(delta)))).size).toBe(3);
+
+  const firstRow = page.locator(".technology-row").first();
+  const dragBox = await firstRow.boundingBox();
+  expect(dragBox).not.toBeNull();
+  const dragStart = await page.locator(".technology-track").first().evaluate((track) => (
+    new DOMMatrix(getComputedStyle(track).transform).m41
+  ));
+  await page.mouse.move(dragBox!.x + dragBox!.width / 2, dragBox!.y + dragBox!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(dragBox!.x + dragBox!.width / 2 + 120, dragBox!.y + dragBox!.height / 2, { steps: 8 });
+  await page.mouse.up();
+  const dragEnd = await page.locator(".technology-track").first().evaluate((track) => (
+    new DOMMatrix(getComputedStyle(track).transform).m41
+  ));
+  expect(Math.abs(dragEnd - dragStart)).toBeGreaterThan(60);
 
   const scrolledTapeTransform = await page.locator(".technology-track").first().evaluate(
     (element) => getComputedStyle(element).transform,
@@ -225,6 +241,14 @@ test("desktop annotations own their responsive tokens", async ({ page }, testInf
     const contact = document.getElementById("contact")!;
     const heroContent = document.querySelector<HTMLElement>(".hero-content")!;
     const technologyMarquee = document.querySelector<HTMLElement>(".technology-marquee")!;
+    const aboutStatement = document.querySelector<HTMLElement>(".about-statement p")!;
+    const aboutCopies = [...document.querySelectorAll<HTMLElement>(".about-copy p")];
+    const sectionMetas = [...document.querySelectorAll<HTMLElement>(".section-meta")];
+    const heroRole = document.querySelector<HTMLElement>(".hero-content h2")!;
+    const heroDescription = document.querySelector<HTMLElement>(".hero-description")!;
+    const heroKicker = document.querySelector<HTMLElement>(".hero-kicker")!;
+    const contactCopy = document.querySelector<HTMLElement>(".contact-copy")!;
+    const contactDescription = document.querySelector<HTMLElement>(".contact-copy > p:not(.contact-lead)")!;
     return {
       sections,
       headerHeight: Number.parseFloat(getComputedStyle(header).height),
@@ -238,7 +262,18 @@ test("desktop annotations own their responsive tokens", async ({ page }, testInf
       ),
       technologyPaddingTop: Number.parseFloat(getComputedStyle(technologyMarquee).paddingTop),
       technologyPaddingBottom: Number.parseFloat(getComputedStyle(technologyMarquee).paddingBottom),
+      technologyRowGap: Number.parseFloat(getComputedStyle(technologyMarquee).rowGap),
       heroRowGap: Number.parseFloat(getComputedStyle(heroContent).rowGap),
+      aboutStatementFontSize: Number.parseFloat(getComputedStyle(aboutStatement).fontSize),
+      aboutCopyFontSizes: aboutCopies.map((copy) => Number.parseFloat(getComputedStyle(copy).fontSize)),
+      sectionMetaFontSizes: sectionMetas.map((meta) => Number.parseFloat(getComputedStyle(meta).fontSize)),
+      heroRoleFontSize: Number.parseFloat(getComputedStyle(heroRole).fontSize),
+      heroRoleFontWeight: Number.parseFloat(getComputedStyle(heroRole).fontWeight),
+      heroDescriptionFontSize: Number.parseFloat(getComputedStyle(heroDescription).fontSize),
+      heroKickerFontSize: Number.parseFloat(getComputedStyle(heroKicker).fontSize),
+      contactCopyPaddingTop: Number.parseFloat(getComputedStyle(contactCopy).paddingTop),
+      contactDescriptionMarginTop: Number.parseFloat(getComputedStyle(contactDescription).marginTop),
+      contactDescriptionFontSize: Number.parseFloat(getComputedStyle(contactDescription).fontSize),
       contactMaxWidth: getComputedStyle(contact).maxWidth,
       contactWidth: contact.getBoundingClientRect().width,
       projectsMaxWidth: getComputedStyle(projects).maxWidth,
@@ -265,19 +300,30 @@ test("desktop annotations own their responsive tokens", async ({ page }, testInf
   expect(layout.moreFontSize).toBe(15);
   expect(layout.footerBrandFontSize).toBeGreaterThan(0);
   expect(layout.sectionBackgrounds).toEqual([
-    "rgb(4, 4, 4)",
+    "rgb(6, 6, 6)",
     "rgb(0, 0, 0)",
-    "rgb(4, 4, 4)",
-    "rgb(4, 4, 4)",
+    "rgb(0, 0, 0)",
+    "rgb(6, 6, 6)",
   ]);
   expect(layout.technologyPaddingTop).toBe(75);
   expect(layout.technologyPaddingBottom).toBe(75);
+  expect(layout.technologyRowGap).toBeGreaterThanOrEqual(72);
   expect(layout.heroRowGap).toBe(10);
+  expect(layout.aboutStatementFontSize).toBe(40);
+  expect(layout.aboutCopyFontSizes).toEqual([17, 17]);
+  expect(new Set(layout.sectionMetaFontSizes)).toEqual(new Set([14]));
+  expect(layout.heroRoleFontSize).toBe(25);
+  expect(layout.heroRoleFontWeight).toBe(900);
+  expect(layout.heroDescriptionFontSize).toBe(18);
+  expect(layout.heroKickerFontSize).toBe(14);
+  expect(layout.contactCopyPaddingTop).toBe(15);
+  expect(layout.contactDescriptionMarginTop).toBe(32);
+  expect(layout.contactDescriptionFontSize).toBe(15);
   expect(layout.contactMaxWidth).toBe("none");
   expect(layout.contactWidth).toBe(layout.viewportWidth);
   expect(layout.projectsMaxWidth).toBe("none");
   expect(layout.projectsWidth).toBe(layout.viewportWidth);
-  expect(layout.constellationPlacement).toEqual([0, 1, 1]);
+  expect(layout.constellationPlacement).toEqual([0, 0, 1]);
 });
 
 test("mobile navigation and contact validation are usable", async ({ page }, testInfo) => {
@@ -332,8 +378,8 @@ test("contact form posts safely to the email endpoint and confirms delivery", as
 
   await page.goto("/#contact");
   const submitButton = page.getByRole("button", { name: "Enviar mensaje" });
-  await expect(submitButton).toHaveAttribute("data-cursor", "action");
-  await page.getByLabel("Email").fill("cliente@example.com");
+  await expect(submitButton).toHaveCSS("cursor", "pointer");
+  await page.getByRole("textbox", { name: "Email" }).fill("cliente@example.com");
   await page.getByLabel("Asunto").fill("Nueva web profesional");
   await page.getByLabel("Mensaje").fill("Me gustaría hablar sobre un nuevo proyecto web.");
   await page.getByRole("button", { name: "Enviar mensaje" }).click();
@@ -348,7 +394,7 @@ test("contact form posts safely to the email endpoint and confirms delivery", as
     website: "",
   });
   expect(requestBody?.startedAt).toEqual(expect.any(Number));
-  await expect(page.getByLabel("Email")).toHaveValue("");
+  await expect(page.getByRole("textbox", { name: "Email" })).toHaveValue("");
 });
 
 test("back to top appears after 30 percent and returns to the hero", async ({ page }) => {
@@ -384,26 +430,32 @@ test("contact endpoint rejects invalid payloads before email delivery", async ({
   expect(response.status()).toBe(400);
 });
 
-test("requested typing and scroll tape remain observable with reduced motion", async ({ page }, testInfo) => {
+test("reduced motion shows content immediately and disables automatic parallax", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith("mobile"), "Comprobación específica de reduced motion");
+  const pageErrors: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
   await page.goto("/");
-  await page.waitForTimeout(700);
-  const partialName = await page.locator(".typing-live").innerText();
-  expect(partialName.length).toBeGreaterThan(0);
-  expect(partialName).not.toBe("Luis Gómez");
-  await expect(page.locator(".typing-live")).toHaveText("Luis Gómez", { timeout: 2_200 });
+  await expect(page.locator(".typing-live")).toHaveText("Luis Gómez");
+  await expect(page.locator(".scroll-reveal").first()).toHaveCSS("opacity", "1");
 
   await page.locator("#technologies").scrollIntoViewIfNeeded();
-  await page.waitForTimeout(180);
+  await page.waitForTimeout(250);
   const tapeBefore = await page.locator(".technology-track").first().evaluate(
-    (element) => getComputedStyle(element).transform,
+    (element) => {
+      const transform = getComputedStyle(element).transform;
+      return transform === "none" ? 0 : new DOMMatrixReadOnly(transform).m41;
+    },
   );
   await page.evaluate(() => window.scrollBy(0, 280));
-  await page.waitForTimeout(180);
+  await page.waitForTimeout(250);
   const tapeAfter = await page.locator(".technology-track").first().evaluate(
-    (element) => getComputedStyle(element).transform,
+    (element) => {
+      const transform = getComputedStyle(element).transform;
+      return transform === "none" ? 0 : new DOMMatrixReadOnly(transform).m41;
+    },
   );
-  expect(tapeAfter).not.toBe(tapeBefore);
+  expect(tapeAfter).toBeCloseTo(tapeBefore, 1);
+  expect(pageErrors).toEqual([]);
 });
 
 test("scroll-linked motion responds in both directions", async ({ page }, testInfo) => {

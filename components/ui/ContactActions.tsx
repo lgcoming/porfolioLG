@@ -17,11 +17,10 @@ export function ContactActions() {
         <ExternalLink aria-hidden="true" />
         <span>LinkedIn</span>
       </a>
-      <a href={contactDetails.whatsappUrl} target="_blank" rel="noreferrer" data-cursor="action">
+      <a href={contactDetails.whatsappUrl} target="_blank" rel="noreferrer">
         <BrandIcon path={siWhatsapp.path} />
         <span>Contactar por WhatsApp</span>
       </a>
     </div>
   );
 }
-

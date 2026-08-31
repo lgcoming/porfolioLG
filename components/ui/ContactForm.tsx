@@ -134,7 +134,6 @@ export function ContactForm() {
       <button
         className="submit-button"
         type="submit"
-        data-cursor="action"
         disabled={status.type === "loading"}
       >
         {status.type === "loading" ? "Enviando…" : "Enviar mensaje"}
