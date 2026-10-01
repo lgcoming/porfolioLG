@@ -44,15 +44,15 @@ export const metadata: Metadata = {
     siteName: "LgComin",
     title: "Luis Gomez — Full Stack Web Developer",
     description,
-    images: [{ url: "/logo%20lg%20fondo%20negro.png", width: 1254, height: 1254, alt: "Logo LGCOMIN" }],
+    images: [{ url: "/logo-lg-fondo-negro.png", width: 1254, height: 1254, alt: "Logo LGCOMIN" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Luis Gomez — Full Stack Web Developer",
     description,
-    images: ["/logo%20lg%20fondo%20negro.png"],
+    images: ["/logo-lg-fondo-negro.png"],
   },
-  icons: { icon: "/logo%20lg%20fondo%20negro.png", apple: "/logo%20lg%20fondo%20negro.png" },
+  icons: { icon: "/logo-lg-fondo-negro.png", apple: "/logo-lg-fondo-negro.png" },
 };
 
 export const viewport: Viewport = {
