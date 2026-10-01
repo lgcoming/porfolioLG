@@ -16,6 +16,11 @@ type HeroFieldProps = {
   density?: number;
 };
 
+/**
+ * Dibuja el campo ambiental Canvas 2D usado por las secciones hero y contacto.
+ * Su bucle se pausa fuera del viewport o de la pestaña y limita el DPR para
+ * mantener la capa decorativa ligera en dispositivos reales.
+ */
 export function HeroField({ density = 1 }: HeroFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -29,7 +34,6 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
     if (!canvasContext) return;
     const context: CanvasRenderingContext2D = canvasContext;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const finePointer = window.matchMedia("(pointer: fine)").matches;
     const mobile = window.matchMedia("(max-width: 767px)").matches;
     let width = 0;
@@ -40,6 +44,7 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
     const pointer = { x: 0, y: 0, active: false };
     const scrollState = { lastY: window.scrollY, progress: 0 };
 
+    // Menos nodos en móvil aligeran el cálculo de líneas entre pares.
     const createNodes = () => {
       const baseCount = mobile ? 34 : Math.min(112, Math.max(72, Math.round(width / 13)));
       const count = Math.max(mobile ? 24 : 52, Math.round(baseCount * density));
@@ -64,7 +69,6 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
       canvas.style.height = `${height}px`;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       createNodes();
-      if (reducedMotion) draw(0);
     };
 
     const drawOrbit = (time: number) => {
@@ -109,6 +113,7 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
       context.fillRect(pointer.x - 190, pointer.y - 190, 380, 380);
     };
 
+    // Todo el movimiento se mantiene en requestAnimationFrame y no en estado de React.
     function draw(time: number) {
       frame = 0;
       context.clearRect(0, 0, width, height);
@@ -116,27 +121,25 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
       drawPointerField();
 
       for (const node of nodes) {
-        if (!reducedMotion) {
-          node.vx *= 0.998;
-          node.vy *= 0.998;
-          node.x += node.vx;
-          node.y += node.vy;
-          if (node.x < -10) node.x = width + 10;
-          if (node.x > width + 10) node.x = -10;
-          if (node.y < -10) node.y = height + 10;
-          if (node.y > height + 10) node.y = -10;
+        node.vx *= 0.998;
+        node.vy *= 0.998;
+        node.x += node.vx;
+        node.y += node.vy;
+        if (node.x < -10) node.x = width + 10;
+        if (node.x > width + 10) node.x = -10;
+        if (node.y < -10) node.y = height + 10;
+        if (node.y > height + 10) node.y = -10;
 
-          if (pointer.active && finePointer) {
-            const dx = node.x - pointer.x;
-            const dy = node.y - pointer.y;
-            const distance = Math.hypot(dx, dy) || 1;
-            if (distance < 210) {
-              const force = 1 - distance / 210;
-              node.vx += (dx / distance) * force * 0.048;
-              node.vy += (dy / distance) * force * 0.048;
-              node.vx = Math.max(-0.85, Math.min(0.85, node.vx));
-              node.vy = Math.max(-0.85, Math.min(0.85, node.vy));
-            }
+        if (pointer.active && finePointer) {
+          const dx = node.x - pointer.x;
+          const dy = node.y - pointer.y;
+          const distance = Math.hypot(dx, dy) || 1;
+          if (distance < 210) {
+            const force = 1 - distance / 210;
+            node.vx += (dx / distance) * force * 0.048;
+            node.vy += (dy / distance) * force * 0.048;
+            node.vx = Math.max(-0.85, Math.min(0.85, node.vx));
+            node.vy = Math.max(-0.85, Math.min(0.85, node.vy));
           }
         }
       }
@@ -191,11 +194,11 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
         context.fill();
       }
 
-      if (!reducedMotion && visible && !document.hidden) frame = requestAnimationFrame(draw);
+      if (visible && !document.hidden) frame = requestAnimationFrame(draw);
     }
 
     const start = () => {
-      if (!reducedMotion && visible && !document.hidden && !frame) frame = requestAnimationFrame(draw);
+      if (visible && !document.hidden && !frame) frame = requestAnimationFrame(draw);
     };
     const stop = () => {
       if (frame) cancelAnimationFrame(frame);
@@ -207,11 +210,9 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
       pointer.x = event.clientX - rect.left;
       pointer.y = event.clientY - rect.top;
       pointer.active = true;
-      if (reducedMotion) draw(performance.now());
     };
     const onPointerLeave = () => {
       pointer.active = false;
-      if (reducedMotion) draw(performance.now());
     };
     const onScroll = () => {
       const nextY = window.scrollY;
@@ -231,18 +232,15 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
         }
       }
 
-      if (reducedMotion && visible) draw(performance.now());
-      else start();
+      start();
     };
     const onVisibility = () => (document.hidden ? stop() : start());
 
     const resizeObserver = new ResizeObserver(resize);
+    // Detiene el canvas cuando su sección sale del viewport.
     const intersectionObserver = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
-      if (visible) {
-        if (reducedMotion) draw(performance.now());
-        else start();
-      }
+      if (visible) start();
       else stop();
     });
 

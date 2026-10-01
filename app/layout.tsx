@@ -22,8 +22,8 @@ const description =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "LGComin | Porfolio",
-    template: "%s | LGCOMIN",
+    default: "Porfolio | Luis Gómez ",
+    template: "%s | Luis Gómez ",
   },
   description,
   alternates: { canonical: "/" },
@@ -41,18 +41,18 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_ES",
     url: siteUrl,
-    siteName: "LGCOMIN",
+    siteName: "LgComin",
     title: "Luis Gomez — Full Stack Web Developer",
     description,
-    images: [{ url: "/logo-lg.png", width: 1254, height: 1254, alt: "Logo LGCOMIN" }],
+    images: [{ url: "/logo%20lg%20fondo%20negro.png", width: 1254, height: 1254, alt: "Logo LGCOMIN" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Luis Gomez — Full Stack Web Developer",
     description,
-    images: ["/logo-lg.png"],
+    images: ["/logo%20lg%20fondo%20negro.png"],
   },
-  icons: { icon: "/logo-lg.png", apple: "/logo-lg.png" },
+  icons: { icon: "/logo%20lg%20fondo%20negro.png", apple: "/logo%20lg%20fondo%20negro.png" },
 };
 
 export const viewport: Viewport = {

@@ -13,6 +13,8 @@ const MIN_FORM_TIME_MS = 1_800;
 const MAX_FORM_AGE_MS = 24 * 60 * 60 * 1000;
 const attempts = new Map<string, number[]>();
 
+// Algunos paneles de despliegue pegan valores entre comillas; normalizarlos
+// mantiene válida la configuración de remitente y destinatario sin exponer secretos.
 function normalizeEnvironmentValue(value: string | undefined) {
   const trimmed = value?.trim() ?? "";
   const quotedValue = trimmed.match(/^(["'])(.*)\1$/);
@@ -31,6 +33,7 @@ function isRateLimited(identifier: string, now: number) {
   recent.push(now);
   attempts.set(identifier, recent);
 
+  // Elimina periódicamente claves caducadas para que el límite en memoria no crezca sin fin.
   if (attempts.size > 500) {
     for (const [key, timestamps] of attempts) {
       if (!timestamps.some((timestamp) => now - timestamp < WINDOW_MS)) attempts.delete(key);

@@ -2,16 +2,23 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { navigation } from "@/data/navigation";
 
 export function Navbar() {
   const [active, setActive] = useState("hero");
   const [open, setOpen] = useState(false);
   const [compact, setCompact] = useState(false);
+  const compactRef = useRef(false);
 
   useEffect(() => {
-    const onScroll = () => setCompact(window.scrollY > 40);
+    // Evita programar una actualización de React en cada scroll si el estado no cambia.
+    const onScroll = () => {
+      const nextCompact = window.scrollY > 40;
+      if (compactRef.current === nextCompact) return;
+      compactRef.current = nextCompact;
+      setCompact(nextCompact);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
 

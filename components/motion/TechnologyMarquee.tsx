@@ -26,7 +26,6 @@ import {
   siWordpress,
 } from "simple-icons";
 import { technologies } from "@/data/technologies";
-import { useHydratedReducedMotion } from "@/hooks/useHydratedReducedMotion";
 
 type Technology = (typeof technologies)[number];
 
@@ -49,6 +48,7 @@ const technologyIcons: Partial<Record<Technology, { path: string }>> = {
 
 const ROW_COUNT = 3;
 const ITEMS_PER_ROW = Math.ceil(technologies.length / ROW_COUNT);
+// Dividir la lista una sola vez mantiene estables el orden y los renders de React.
 const TECHNOLOGY_ROWS = Array.from({ length: ROW_COUNT }, (_, index) => (
   technologies.slice(index * ITEMS_PER_ROW, (index + 1) * ITEMS_PER_ROW)
 ));
@@ -83,7 +83,6 @@ function MarqueeRow({ items, rowIndex, scrollY }: MarqueeRowProps) {
   const groupWidth = useRef(0);
   const previousScroll = useRef(0);
   const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
-  const prefersReducedMotion = useHydratedReducedMotion();
   const x = useMotionValue(0);
   const speed = [0.72, -0.46, 0.58][rowIndex] ?? 0.5;
   const initialProgress = [1, 0.62, 0.82][rowIndex] ?? 1;
@@ -92,6 +91,7 @@ function MarqueeRow({ items, rowIndex, scrollY }: MarqueeRowProps) {
     const group = groupRef.current;
     if (!group) return;
 
+    // Tres copias hacen que la cinta parezca infinita y mantienen límites de arrastre finitos.
     const measure = () => {
       const width = group.getBoundingClientRect().width;
       groupWidth.current = width;
@@ -108,7 +108,8 @@ function MarqueeRow({ items, rowIndex, scrollY }: MarqueeRowProps) {
   useMotionValueEvent(scrollY, "change", (latest) => {
     const delta = latest - previousScroll.current;
     previousScroll.current = latest;
-    if (prefersReducedMotion || !groupWidth.current) return;
+    // El scroll añade un desplazamiento direccional sutil y conserva el arrastre manual.
+    if (!groupWidth.current) return;
     x.set(wrapLoop(x.get() + delta * speed, groupWidth.current));
   });
 

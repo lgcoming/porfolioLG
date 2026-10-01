@@ -1871,35 +1871,3 @@ button {
     height: 46px;
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.001ms !important;
-  }
-
-  .hero-field {
-    opacity: 0.86;
-  }
-
-  .hero-field-layer,
-  .hero-grid,
-  .hero-content,
-  .scroll-reveal,
-  .project-case,
-  .project-image-wrap,
-  .project-copy {
-    transform: none !important;
-    opacity: 1 !important;
-    filter: none !important;
-    animation: none !important;
-  }
-}

@@ -430,13 +430,12 @@ test("contact endpoint rejects invalid payloads before email delivery", async ({
   expect(response.status()).toBe(400);
 });
 
-test("reduced motion shows content immediately and disables automatic parallax", async ({ page }, testInfo) => {
-  test.skip(!testInfo.project.name.startsWith("mobile"), "Comprobación específica de reduced motion");
+test("las animaciones se mantienen activas aunque el navegador solicite reducir movimiento", async ({ page }) => {
   const pageErrors: string[] = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await expect(page.locator(".typing-live")).toHaveText("Luis Gómez");
-  await expect(page.locator(".scroll-reveal").first()).toHaveCSS("opacity", "1");
+  await expect(page.locator(".typing-live")).toHaveText("Luis Gómez", { timeout: 2_500 });
 
   await page.locator("#technologies").scrollIntoViewIfNeeded();
   await page.waitForTimeout(250);
@@ -454,7 +453,7 @@ test("reduced motion shows content immediately and disables automatic parallax",
       return transform === "none" ? 0 : new DOMMatrixReadOnly(transform).m41;
     },
   );
-  expect(tapeAfter).toBeCloseTo(tapeBefore, 1);
+  expect(tapeAfter).not.toBeCloseTo(tapeBefore, 1);
   expect(pageErrors).toEqual([]);
 });
 
