@@ -1,5 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
+// A dedicated port so the suite never reuses an unrelated app already running on :3000.
+const port = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
+const baseURL = `http://localhost:${port}`;
+
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
@@ -7,12 +11,12 @@ export default defineConfig({
   retries: 0,
   reporter: "list",
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL,
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "pnpm dev",
-    url: "http://localhost:3000",
+    command: `pnpm dev --port ${port}`,
+    url: baseURL,
     reuseExistingServer: true,
     timeout: 120_000,
   },
