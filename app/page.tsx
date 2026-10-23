@@ -19,7 +19,7 @@ const structuredData = {
       url: "https://lgcomin.com/",
       image: "https://lgcomin.com/logo-lg.png",
       jobTitle: "Full Stack Web Developer",
-      sameAs: [contactDetails.linkedinUrl],
+      sameAs: [contactDetails.linkedinUrl, contactDetails.githubUrl],
       knowsAbout: ["Desarrollo web", "Inteligencia artificial", "Automatización"],
     },
     {

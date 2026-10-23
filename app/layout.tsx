@@ -22,8 +22,8 @@ const description =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Porfolio | Luis Gómez ",
-    template: "%s | Luis Gómez ",
+    default: "Portfolio | Luis Gómez",
+    template: "%s | Luis Gómez",
   },
   description,
   alternates: { canonical: "/" },
