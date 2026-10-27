@@ -5,7 +5,7 @@ const rich = (...parts: RichText): RichText => parts;
 
 const es = {
   meta: {
-    title: "Porfolio | Luis Gómez",
+    title: "Portfolio | Luis Gómez",
     description:
       "Portfolio de Luis Gomez, desarrollador Full Stack especializado en desarrollo web, inteligencia artificial y automatización.",
     ogTitle: "Luis Gomez — Full Stack Web Developer",

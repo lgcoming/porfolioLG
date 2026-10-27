@@ -24,6 +24,9 @@ export function Footer({ copy }: { copy: Dictionary["footer"] }) {
         <a href={contactDetails.linkedinUrl} target="_blank" rel="noreferrer" aria-label="LinkedIn">
           LinkedIn <ArrowUpRight aria-hidden="true" size={13} />
         </a>
+        <a href={contactDetails.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub">
+          GitHub <ArrowUpRight aria-hidden="true" size={13} />
+        </a>
         <a href={`mailto:${contactDetails.email}`} aria-label="Email">
           Email
         </a>

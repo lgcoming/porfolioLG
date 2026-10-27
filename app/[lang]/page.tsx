@@ -29,7 +29,7 @@ const getStructuredData = (locale: Locale) => {
         url,
         image: "https://lgcomin.com/og-logo-lg.png",
         jobTitle: "Full Stack Web Developer",
-        sameAs: [contactDetails.linkedinUrl],
+        sameAs: [contactDetails.linkedinUrl, contactDetails.githubUrl],
         knowsAbout: knowsAbout[locale],
       },
       {
