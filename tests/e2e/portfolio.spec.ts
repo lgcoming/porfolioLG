@@ -13,7 +13,7 @@ test("renders the complete portfolio and real project links", async ({ page }) =
   await expect(page.getByRole("heading", { name: "Full Stack Web Developer" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Sobre mí" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Tecnologías" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Últimos Proyectos" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Proyectos", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Servicios" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Contacto", exact: true })).toBeVisible();
   await expect(page.locator(".contact-lead")).toHaveText("¿Tienes una idea o proyecto en mente?");
@@ -46,7 +46,7 @@ test("renders the complete portfolio and real project links", async ({ page }) =
     "href",
     "https://www.vonlippe.com/",
   );
-  await expect(page.getByRole("link", { name: "Ver proyecto Daycar" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Ver proyecto Daycar Homes" })).toHaveAttribute(
     "href",
     "https://daycarhomes.com/",
   );
@@ -293,14 +293,14 @@ test("desktop annotations own their responsive tokens", async ({ page }, testInf
     expect(section.paddingBottom).toBe(expectedPadding);
     expect(section.headingOffset).toBeLessThan(90);
   }
-  expect(layout.headerHeight).toBe(108);
+  expect(layout.headerHeight).toBe(96);
   expect(layout.navFontSize).toBe(16);
   expect(layout.logoWidth).toBe(64);
   expect(layout.introWidth).toBeGreaterThan(1_100);
   expect(layout.moreFontSize).toBe(15);
   expect(layout.footerBrandFontSize).toBeGreaterThan(0);
   expect(layout.sectionBackgrounds).toEqual([
-    "rgb(6, 6, 6)",
+    "rgb(2, 2, 2)",
     "rgb(0, 0, 0)",
     "rgb(0, 0, 0)",
     "rgb(6, 6, 6)",
@@ -356,7 +356,7 @@ test("mobile navigation and contact validation are usable", async ({ page }, tes
   await expect(calmellImage).toHaveAttribute("data-padding", "compact");
   await expect(calmellImage).toHaveCSS("object-fit", "contain");
 
-  for (const project of ["Clínica Dental Castillo", "Daycar"]) {
+  for (const project of ["Clínica Dental Castillo", "Daycar Homes"]) {
     const image = page.getByRole("link", { name: `Ver proyecto ${project}` }).locator(".project-image");
     const horizontalPadding = await image.evaluate((element) => (
       Number.parseFloat(getComputedStyle(element).paddingLeft)
@@ -494,4 +494,61 @@ test("scroll-linked motion responds in both directions", async ({ page }, testIn
   expect(Math.abs(upTransform.y - entryTransform.y)).toBeLessThanOrEqual(
     Math.abs(downTransform.y - entryTransform.y),
   );
+});
+
+test("english version is served at /en with translated content", async ({ page }) => {
+  await page.goto("/en");
+
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.getByRole("heading", { name: "About me" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Services" })).toBeVisible();
+  await expect(page.locator(".about-statement .statement-security")).toHaveText("security");
+  await expect(page.locator(".about-statement .statement-ai")).toHaveText("artificial intelligence");
+  await expect(page.getByRole("link", { name: "View project Calmell Group" })).toHaveAttribute(
+    "href",
+    "https://calmell.com",
+  );
+  await expect(page.locator(".project-link")).toHaveCount(8);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/en$/);
+});
+
+test("spanish statement highlights code, AI and security", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await expect(page.locator(".about-statement em")).toHaveText("código");
+  await expect(page.locator(".about-statement .statement-ai")).toHaveText("inteligencia artificial");
+  const security = page.locator(".about-statement .statement-security");
+  await expect(security).toHaveText("seguridad");
+  await expect(security).toHaveCSS("background-clip", "text");
+  await expect(page.locator(".about-copy p").first()).toContainText(
+    "soy un desarrollador web full stack especializado en crear aplicaciones modernas",
+  );
+});
+
+test("language switch keeps the reading position", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => {
+    document.documentElement.style.scrollBehavior = "auto";
+    window.scrollTo(0, 900);
+  });
+  await page.locator(".lang-switch a[hreflang='en']").click();
+
+  await expect(page).toHaveURL(/\/en$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator(".lang-switch a[data-active='true']")).toHaveText("EN");
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(800);
+
+  await page.locator(".lang-switch a[hreflang='es']").click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+});
+
+test("unknown locales return 404 and /es redirects to the root", async ({ request }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith("desktop"), "Una comprobación de rutas es suficiente");
+  expect((await request.get("/fr")).status()).toBe(404);
+  const redirect = await request.get("/es", { maxRedirects: 0 });
+  expect(redirect.status()).toBe(308);
+  expect(redirect.headers().location).toBe("/");
 });

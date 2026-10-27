@@ -1,8 +1,9 @@
-export const navigation = [
-  { label: "Sobre mí", href: "#about" },
-  { label: "Tecnologías", href: "#technologies" },
-  { label: "Proyectos", href: "#projects" },
-  { label: "Servicios", href: "#services" },
-  { label: "Contacto", href: "#contact" },
-] as const;
+import type { Localized } from "@/types/content";
 
+export const navigation = [
+  { label: { es: "Sobre mí", en: "About" }, href: "#about" },
+  { label: { es: "Tecnologías", en: "Technologies" }, href: "#technologies" },
+  { label: { es: "Proyectos", en: "Projects" }, href: "#projects" },
+  { label: { es: "Servicios", en: "Services" }, href: "#services" },
+  { label: { es: "Contacto", en: "Contact" }, href: "#contact" },
+] as const satisfies readonly { label: Localized; href: string }[];

@@ -4,8 +4,15 @@ import { ContactActions } from "@/components/ui/ContactActions";
 import { ContactForm } from "@/components/ui/ContactForm";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { contactDetails } from "@/data/contact";
+import type { Dictionary } from "@/data/dictionaries";
+import type { Locale } from "@/lib/i18n";
 
-export function Contact() {
+type ContactProps = {
+  locale: Locale;
+  copy: Dictionary["contact"];
+};
+
+export function Contact({ locale, copy }: ContactProps) {
   return (
     <section id="contact" className="page-section contact-section" aria-labelledby="contact-title">
       <div className="section-constellation" aria-hidden="true">
@@ -15,19 +22,19 @@ export function Contact() {
       <div className="contact-orbit contact-orbit-two" aria-hidden="true" />
       <div className="contact-shell">
         <ScrollReveal variant="mask">
-          <div id="contact-title"><SectionHeading index="05" eyebrow="CONTACTO" title="Contacto" /></div>
+          <div id="contact-title"><SectionHeading index="05" eyebrow={copy.eyebrow} title={copy.title} /></div>
         </ScrollReveal>
         <div className="contact-layout">
           <ScrollReveal className="contact-copy" axis="x" direction={-1} variant="slide">
-            <p className="contact-lead">¿Tienes una idea o proyecto en mente?</p>
-            <p>Escríbeme y te responderé en menos de 48 horas.</p>
+            <p className="contact-lead">{copy.lead}</p>
+            <p>{copy.body}</p>
             <a className="contact-email" href={`mailto:${contactDetails.email}`}>
               {contactDetails.email} ↗
             </a>
-            <ContactActions />
+            <ContactActions whatsappLabel={copy.whatsapp} />
           </ScrollReveal>
           <ScrollReveal className="contact-form-wrap" axis="x" variant="scale" delay={0.04}>
-            <ContactForm />
+            <ContactForm locale={locale} copy={copy.form} />
           </ScrollReveal>
         </div>
       </div>

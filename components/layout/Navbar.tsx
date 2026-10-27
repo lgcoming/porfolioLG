@@ -3,9 +3,17 @@
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { LanguageSwitch } from "@/components/layout/LanguageSwitch";
+import type { Dictionary } from "@/data/dictionaries";
 import { navigation } from "@/data/navigation";
+import type { Locale } from "@/lib/i18n";
 
-export function Navbar() {
+type NavbarProps = {
+  locale: Locale;
+  copy: Dictionary["nav"];
+};
+
+export function Navbar({ locale, copy }: NavbarProps) {
   const [active, setActive] = useState("hero");
   const [open, setOpen] = useState(false);
   const [compact, setCompact] = useState(false);
@@ -53,9 +61,9 @@ export function Navbar() {
 
   return (
     <header className="site-header" data-compact={compact}>
-      <nav className="navbar" aria-label="Navegación principal">
-        <a className="brand" href="#hero" aria-label="LGCOMIN — inicio">
-          <Image src="/logo-lg.png" alt="" width={64} height={64} preload sizes="64px" />
+      <nav className="navbar" aria-label={copy.ariaLabel}>
+        <a className="brand" href="#hero" aria-label={copy.home}>
+          <Image src="/logo-lg-blanco.png" alt="" width={64} height={64} preload sizes="64px" />
         </a>
 
         <ul className="nav-links">
@@ -64,27 +72,30 @@ export function Navbar() {
             return (
               <li key={item.href}>
                 <a href={item.href} data-active={active === id} aria-current={active === id ? "location" : undefined}>
-                  {item.label}
+                  {item.label[locale]}
                 </a>
               </li>
             );
           })}
         </ul>
 
-        <button
-          className="menu-toggle"
-          type="button"
-          aria-label={open ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          onClick={() => setOpen((value) => !value)}
-        >
-          <span className="menu-toggle-glyph" aria-hidden="true">
-            <span className="menu-toggle-line menu-toggle-line-top" />
-            <span className="menu-toggle-line menu-toggle-line-middle" />
-            <span className="menu-toggle-line menu-toggle-line-bottom" />
-          </span>
-        </button>
+        <div className="navbar-actions">
+          <LanguageSwitch locale={locale} label={copy.languageLabel} switchLabel={copy.languageSwitch} />
+          <button
+            className="menu-toggle"
+            type="button"
+            aria-label={open ? copy.closeMenu : copy.openMenu}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            onClick={() => setOpen((value) => !value)}
+          >
+            <span className="menu-toggle-glyph" aria-hidden="true">
+              <span className="menu-toggle-line menu-toggle-line-top" />
+              <span className="menu-toggle-line menu-toggle-line-middle" />
+              <span className="menu-toggle-line menu-toggle-line-bottom" />
+            </span>
+          </button>
+        </div>
       </nav>
 
       <AnimatePresence>
@@ -100,7 +111,7 @@ export function Navbar() {
             {navigation.map((item, index) => (
               <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
                 <span>0{index + 1}</span>
-                {item.label}
+                {item.label[locale]}
               </a>
             ))}
           </motion.div>

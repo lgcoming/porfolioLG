@@ -1,15 +1,16 @@
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { contactDetails } from "@/data/contact";
+import type { Dictionary } from "@/data/dictionaries";
 
-export function Footer() {
+export function Footer({ copy }: { copy: Dictionary["footer"] }) {
   const year = new Date().getFullYear();
 
   return (
     <footer className="site-footer">
-      <a className="footer-brand" href="#hero" aria-label="Volver al inicio">
+      <a className="footer-brand" href="#hero" aria-label={copy.home}>
         <Image
-          src="/logo-lg.png"
+          src="/logo-lg-blanco.png"
           alt="LG"
           width={32}
           height={32}
@@ -17,7 +18,7 @@ export function Footer() {
         />
       </a>
 
-      <p className="footer-copy">© {year} LGCOMIN / Todos los derechos reservados.</p>
+      <p className="footer-copy">© {year} LGCOMIN / {copy.rights}</p>
 
       <div className="footer-social">
         <a href={contactDetails.linkedinUrl} target="_blank" rel="noreferrer" aria-label="LinkedIn">

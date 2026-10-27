@@ -57,6 +57,7 @@ type MarqueeRowProps = {
   items: Technology[];
   rowIndex: number;
   scrollY: MotionValue<number>;
+  label: string;
 };
 
 function wrapLoop(value: number, width: number) {
@@ -78,7 +79,7 @@ function TechnologyIcon({ technology }: { technology: Technology }) {
   );
 }
 
-function MarqueeRow({ items, rowIndex, scrollY }: MarqueeRowProps) {
+function MarqueeRow({ items, rowIndex, scrollY, label }: MarqueeRowProps) {
   const groupRef = useRef<HTMLDivElement>(null);
   const groupWidth = useRef(0);
   const previousScroll = useRef(0);
@@ -131,7 +132,7 @@ function MarqueeRow({ items, rowIndex, scrollY }: MarqueeRowProps) {
       className="technology-row"
       role="group"
       tabIndex={0}
-      aria-label={`Fila ${rowIndex + 1} de tecnologías. Arrastra horizontalmente o usa las flechas izquierda y derecha.`}
+      aria-label={label}
       onKeyDown={handleKeyDown}
     >
       <motion.div
@@ -164,13 +165,20 @@ function MarqueeRow({ items, rowIndex, scrollY }: MarqueeRowProps) {
   );
 }
 
-export function TechnologyMarquee() {
+/** `rowLabel` admite el marcador `{row}` para numerar cada fila. */
+export function TechnologyMarquee({ rowLabel }: { rowLabel: string }) {
   const { scrollY } = useScroll();
 
   return (
     <div className="technology-marquee">
       {TECHNOLOGY_ROWS.map((row, rowIndex) => (
-        <MarqueeRow items={row} rowIndex={rowIndex} scrollY={scrollY} key={row[0]} />
+        <MarqueeRow
+          items={row}
+          rowIndex={rowIndex}
+          scrollY={scrollY}
+          label={rowLabel.replace("{row}", String(rowIndex + 1))}
+          key={row[0]}
+        />
       ))}
     </div>
   );

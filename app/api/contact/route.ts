@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
-import { contactSchema } from "@/lib/contact-schema";
+import { contactResponses } from "@/lib/contact-messages";
+import { createContactSchema } from "@/lib/contact-schema";
+import { defaultLocale, hasLocale } from "@/lib/i18n";
 import { getResend } from "@/lib/resend";
 import { contactDetails } from "@/data/contact";
 
@@ -57,14 +59,18 @@ function escapeHtml(value: string) {
 
 export async function POST(request: Request) {
   const now = Date.now();
+  // El formulario declara su idioma con Content-Language; el español es el valor por defecto.
+  const requestedLocale = request.headers.get("content-language")?.trim().toLowerCase() ?? "";
+  const locale = hasLocale(requestedLocale) ? requestedLocale : defaultLocale;
+  const messages = contactResponses[locale];
 
   if (!(request.headers.get("content-type") ?? "").startsWith("application/json")) {
-    return NextResponse.json({ message: "El formato del formulario no es válido." }, { status: 415 });
+    return NextResponse.json({ message: messages.invalidFormat }, { status: 415 });
   }
 
   if (isRateLimited(getIdentifier(request), now)) {
     return NextResponse.json(
-      { message: "Has enviado varios mensajes seguidos. Espera unos minutos y vuelve a intentarlo." },
+      { message: messages.rateLimited },
       { status: 429 },
     );
   }
@@ -73,19 +79,19 @@ export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
     if (rawBody.length > MAX_BODY_LENGTH) {
-      return NextResponse.json({ message: "El mensaje es demasiado grande." }, { status: 413 });
+      return NextResponse.json({ message: messages.tooLarge }, { status: 413 });
     }
     input = JSON.parse(rawBody);
   } catch {
-    return NextResponse.json({ message: "No se pudo leer el formulario." }, { status: 400 });
+    return NextResponse.json({ message: messages.unreadable }, { status: 400 });
   }
 
-  const parsed = contactSchema.safeParse(input);
+  const parsed = createContactSchema(locale).safeParse(input);
   const elapsed = parsed.success ? now - parsed.data.startedAt : 0;
 
   if (!parsed.success || elapsed < MIN_FORM_TIME_MS || elapsed > MAX_FORM_AGE_MS) {
     return NextResponse.json(
-      { message: "Revisa los campos del formulario e inténtalo de nuevo." },
+      { message: messages.invalidFields },
       { status: 400 },
     );
   }
@@ -93,7 +99,7 @@ export async function POST(request: Request) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { message: "El formulario aún no está conectado. Puedes usar el email directo mientras tanto." },
+      { message: messages.notConfigured },
       { status: 503 },
     );
   }
@@ -147,16 +153,16 @@ export async function POST(request: Request) {
 
     if (errorMessage.includes("Invalid `from` field")) {
       return NextResponse.json(
-        { message: "El remitente del formulario no está configurado correctamente. Contacta por email directo mientras se corrige." },
+        { message: messages.invalidSender },
         { status: 503 },
       );
     }
 
     return NextResponse.json(
-      { message: "No he podido enviar el mensaje ahora mismo. Prueba de nuevo o utiliza el email directo." },
+      { message: messages.deliveryFailed },
       { status: 502 },
     );
   }
 
-  return NextResponse.json({ message: "Mensaje enviado. Te responderé en menos de 48 horas." });
+  return NextResponse.json({ message: messages.sent });
 }

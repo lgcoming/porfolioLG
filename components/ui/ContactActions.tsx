@@ -10,7 +10,7 @@ function BrandIcon({ path }: { path: string }) {
   );
 }
 
-export function ContactActions() {
+export function ContactActions({ whatsappLabel }: { whatsappLabel: string }) {
   return (
     <div className="contact-actions contact-actions-contact">
       <a href={contactDetails.linkedinUrl} target="_blank" rel="noreferrer">
@@ -19,7 +19,7 @@ export function ContactActions() {
       </a>
       <a href={contactDetails.whatsappUrl} target="_blank" rel="noreferrer">
         <BrandIcon path={siWhatsapp.path} />
-        <span>Contactar por WhatsApp</span>
+        <span>{whatsappLabel}</span>
       </a>
     </div>
   );

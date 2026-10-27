@@ -12,8 +12,29 @@ type FieldNode = {
   accent: boolean;
 };
 
+type Star = {
+  x: number;
+  y: number;
+  radius: number;
+  alpha: number;
+  twinkle: number;
+  phase: number;
+};
+
+type ShootingStar = {
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+  speed: number;
+  length: number;
+  start: number;
+  life: number;
+};
+
 type HeroFieldProps = {
   density?: number;
+  stars?: boolean;
 };
 
 /**
@@ -21,7 +42,7 @@ type HeroFieldProps = {
  * Su bucle se pausa fuera del viewport o de la pestaña y limita el DPR para
  * mantener la capa decorativa ligera en dispositivos reales.
  */
-export function HeroField({ density = 1 }: HeroFieldProps) {
+export function HeroField({ density = 1, stars = false }: HeroFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -41,6 +62,12 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
     let frame = 0;
     let visible = true;
     let nodes: FieldNode[] = [];
+    let dpr = 1;
+    let starfield: Star[] = [];
+    let twinklingStars: Star[] = [];
+    let starLayer: HTMLCanvasElement | null = null;
+    let shootingStar: ShootingStar | null = null;
+    let nextShootingStar = 0;
     const pointer = { x: 0, y: 0, active: false };
     const scrollState = { lastY: window.scrollY, progress: 0 };
 
@@ -59,15 +86,153 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
       }));
     };
 
+    function paintStar(target: CanvasRenderingContext2D, star: Star, alpha: number) {
+      target.globalAlpha = alpha;
+      if (star.radius < 0.7) {
+        target.fillRect(star.x, star.y, star.radius * 1.6, star.radius * 1.6);
+        return;
+      }
+      target.beginPath();
+      target.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+      target.fill();
+    }
+
+    // Estrellas diminutas y mayoritariamente tenues; solo una parte parpadea.
+    const createStars = () => {
+      if (!stars) return;
+      const count = Math.round(Math.min(mobile ? 90 : 230, (width * height) / (mobile ? 4200 : 5600)));
+      starfield = Array.from({ length: count }, () => {
+        const depth = Math.random() ** 2.2;
+        return {
+          x: Math.random() * width,
+          y: Math.random() * height,
+          radius: 0.3 + depth * 0.95,
+          alpha: 0.14 + depth * 0.5 + Math.random() * 0.12,
+          twinkle: Math.random() < 0.32 ? 0.0006 + Math.random() * 0.0012 : 0,
+          phase: Math.random() * Math.PI * 2,
+        };
+      });
+      twinklingStars = starfield.filter((star) => star.twinkle);
+
+      // Las estrellas fijas se pintan una sola vez en un bitmap reutilizado cada frame.
+      starLayer ??= document.createElement("canvas");
+      starLayer.width = canvas.width;
+      starLayer.height = canvas.height;
+      const layerContext = starLayer.getContext("2d");
+      if (!layerContext) {
+        starLayer = null;
+        twinklingStars = starfield;
+        return;
+      }
+      layerContext.setTransform(dpr, 0, 0, dpr, 0, 0);
+      layerContext.fillStyle = "#fff";
+      for (const star of starfield) {
+        if (!star.twinkle) paintStar(layerContext, star, star.alpha);
+      }
+    };
+
+    const scheduleShootingStar = (time: number) => {
+      nextShootingStar = time + 6000 + Math.random() * 6000;
+    };
+
+    const spawnShootingStar = (time: number) => {
+      const fromLeft = Math.random() < 0.5;
+      const angle = (0.24 + Math.random() * 0.3) * (fromLeft ? 1 : -1);
+      shootingStar = {
+        x: width * (fromLeft ? 0.05 + Math.random() * 0.45 : 0.5 + Math.random() * 0.45),
+        y: height * (0.04 + Math.random() * 0.38),
+        dx: Math.cos(angle) * (fromLeft ? 1 : -1),
+        dy: Math.abs(Math.sin(angle)),
+        speed: (mobile ? 0.55 : 0.75) + Math.random() * 0.35,
+        length: (mobile ? 90 : 130) + Math.random() * 90,
+        start: time,
+        life: 900 + Math.random() * 500,
+      };
+    };
+
+    const drawStars = (time: number) => {
+      if (!stars) return;
+      if (starLayer) context.drawImage(starLayer, 0, 0, width, height);
+      context.fillStyle = "#fff";
+      for (const star of twinklingStars) {
+        const flicker = star.twinkle ? 0.62 + Math.sin(time * star.twinkle + star.phase) * 0.38 : 1;
+        paintStar(context, star, star.alpha * flicker);
+      }
+      context.globalAlpha = 1;
+    };
+
+    const drawShootingStar = (time: number) => {
+      if (!stars) return;
+      if (!shootingStar) {
+        if (!nextShootingStar) scheduleShootingStar(time);
+        else if (time >= nextShootingStar) spawnShootingStar(time);
+        if (!shootingStar) return;
+      }
+
+      const elapsed = time - shootingStar.start;
+      const progress = elapsed / shootingStar.life;
+      if (progress >= 1) {
+        shootingStar = null;
+        scheduleShootingStar(time);
+        return;
+      }
+
+      // Envolvente suave: aparece, cruza y se desvanece sin cortes.
+      const fade = Math.sin(progress * Math.PI);
+      const travel = elapsed * shootingStar.speed;
+      const headX = shootingStar.x + shootingStar.dx * travel;
+      const headY = shootingStar.y + shootingStar.dy * travel;
+      const tail = shootingStar.length * (0.45 + fade * 0.55);
+      const tailX = headX - shootingStar.dx * tail;
+      const tailY = headY - shootingStar.dy * tail;
+      const trail = context.createLinearGradient(headX, headY, tailX, tailY);
+      trail.addColorStop(0, `rgba(255, 255, 255, ${0.85 * fade})`);
+      trail.addColorStop(0.35, `rgba(210, 245, 255, ${0.28 * fade})`);
+      trail.addColorStop(1, "rgba(255, 255, 255, 0)");
+      context.strokeStyle = trail;
+      context.lineWidth = 1.1;
+      context.lineCap = "round";
+      context.beginPath();
+      context.moveTo(headX, headY);
+      context.lineTo(tailX, tailY);
+      context.stroke();
+      context.fillStyle = `rgba(255, 255, 255, ${0.9 * fade})`;
+      context.beginPath();
+      context.arc(headX, headY, 1.1, 0, Math.PI * 2);
+      context.fill();
+    };
+
+    // Mantiene cada nodo (incluido su halo) dentro del contenedor y rebota amortiguado.
+    const contain = (node: FieldNode) => {
+      const margin = node.radius * 3.2;
+      const maxX = Math.max(margin, width - margin);
+      const maxY = Math.max(margin, height - margin);
+      if (node.x < margin) {
+        node.x = margin;
+        node.vx = Math.abs(node.vx) * 0.82;
+      } else if (node.x > maxX) {
+        node.x = maxX;
+        node.vx = -Math.abs(node.vx) * 0.82;
+      }
+      if (node.y < margin) {
+        node.y = margin;
+        node.vy = Math.abs(node.vy) * 0.82;
+      } else if (node.y > maxY) {
+        node.y = maxY;
+        node.vy = -Math.abs(node.vy) * 0.82;
+      }
+    };
+
     const resize = () => {
       width = host.clientWidth;
       height = host.clientHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.2 : 1.6);
+      dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.2 : 1.6);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      createStars();
       createNodes();
     };
 
@@ -117,6 +282,9 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
     function draw(time: number) {
       frame = 0;
       context.clearRect(0, 0, width, height);
+      // Capa más profunda: se pinta antes que órbitas y constelaciones.
+      drawStars(time);
+      drawShootingStar(time);
       drawOrbit(time);
       drawPointerField();
 
@@ -125,10 +293,6 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
         node.vy *= 0.998;
         node.x += node.vx;
         node.y += node.vy;
-        if (node.x < -10) node.x = width + 10;
-        if (node.x > width + 10) node.x = -10;
-        if (node.y < -10) node.y = height + 10;
-        if (node.y > height + 10) node.y = -10;
 
         if (pointer.active && finePointer) {
           const dx = node.x - pointer.x;
@@ -142,6 +306,8 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
             node.vy = Math.max(-0.85, Math.min(0.85, node.vy));
           }
         }
+
+        contain(node);
       }
 
       for (let i = 0; i < nodes.length; i += 1) {
@@ -225,10 +391,7 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
         for (const node of nodes) {
           node.x += delta * (node.accent ? 0.075 : -0.045);
           node.y -= delta * (node.accent ? 0.022 : 0.012);
-          if (node.x < -12) node.x = width + 12;
-          if (node.x > width + 12) node.x = -12;
-          if (node.y < -12) node.y = height + 12;
-          if (node.y > height + 12) node.y = -12;
+          contain(node);
         }
       }
 
@@ -263,7 +426,7 @@ export function HeroField({ density = 1 }: HeroFieldProps) {
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [density]);
+  }, [density, stars]);
 
   return <canvas ref={canvasRef} className="hero-field" aria-hidden="true" />;
 }

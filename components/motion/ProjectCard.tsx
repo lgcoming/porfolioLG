@@ -3,14 +3,16 @@
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import Image from "next/image";
 import { useRef } from "react";
+import type { Dictionary } from "@/data/dictionaries";
 import type { Project } from "@/types/content";
 
 type ProjectCardProps = {
   project: Project;
   index: number;
+  copy: Dictionary["projects"];
 };
 
-export function ProjectCard({ project, index }: ProjectCardProps) {
+export function ProjectCard({ project, index, copy }: ProjectCardProps) {
   const ref = useRef<HTMLElement>(null);
   const imageFit = project.imageFit ?? "cover";
   const imageSurface = project.imageSurface ?? "dark";
@@ -36,7 +38,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
         href={project.href}
         target="_blank"
         rel="noreferrer"
-        aria-label={`Ver proyecto ${project.title}`}
+        aria-label={`${copy.viewProject} ${project.title}`}
       >
         <div className="project-media" data-surface={imageSurface}>
           <motion.div
@@ -65,10 +67,10 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
           <span className="project-index">{String(index + 1).padStart(2, "0")}</span>
           <h3>{project.title}</h3>
           <p>{project.description}</p>
-          <ul aria-label="Tecnologías utilizadas">
+          <ul aria-label={copy.stackLabel}>
             {project.stack.map((technology) => <li key={technology}>{technology}</li>)}
           </ul>
-          <span className="project-cta">VER PROYECTO ↗</span>
+          <span className="project-cta">{copy.cta}</span>
         </motion.div>
       </a>
     </motion.article>

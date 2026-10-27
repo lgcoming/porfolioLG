@@ -12,6 +12,8 @@ import { useRef } from "react";
 import { HeroField } from "@/components/motion/HeroField";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { TypewriterName } from "@/components/motion/TypewriterName";
+import { RichText } from "@/components/ui/RichText";
+import type { Dictionary } from "@/data/dictionaries";
 
 // El contenedor coordina la entrada escalonada y comparte la curva de animación.
 const stageVariants: Variants = {
@@ -38,7 +40,7 @@ const elementVariants: Variants = {
   },
 };
 
-export function Hero() {
+export function Hero({ copy }: { copy: Dictionary["hero"] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -60,7 +62,7 @@ export function Hero() {
         className="hero-field-layer"
         style={{ y: fieldY, scale: fieldScale }}
       >
-        <HeroField />
+        <HeroField stars />
       </motion.div>
       <motion.div
         className="hero-grid"
@@ -76,11 +78,11 @@ export function Hero() {
         animate="visible"
         style={{ y: stageY, scale: stageScale, opacity: stageOpacity }}
       >
-        <motion.p className="hero-kicker" variants={elementVariants}><span>00</span> Portfolio</motion.p>
+        <motion.p className="hero-kicker" variants={elementVariants}><span>00</span> {copy.kicker}</motion.p>
         <h1 id="hero-title"><TypewriterName /></h1>
-        <motion.h2 variants={elementVariants}>Full Stack Web Developer</motion.h2>
+        <motion.h2 variants={elementVariants}>{copy.role}</motion.h2>
         <motion.p className="hero-description" variants={elementVariants}>
-          Desarrollo impulsado por <strong>Inteligencia Artificial</strong>, pensado para personas y negocios que buscan destacar y mejorar con tecnología de última generación.
+          <RichText content={copy.description} />
         </motion.p>
         <motion.div className="hero-actions" variants={elementVariants}>
           <Magnetic>
@@ -90,20 +92,20 @@ export function Hero() {
               whileTap={{ scale: 0.96 }}
               transition={{ type: "spring", stiffness: 460, damping: 28 }}
             >
-              <span>Ver proyectos</span>
+              <span>{copy.primaryCta}</span>
               <span className="primary-cta-icon" aria-hidden="true">
                 <ArrowUpRight size={18} strokeWidth={1.6} />
               </span>
             </motion.a>
           </Magnetic>
-          <a className="text-link" href="#contact">Hablemos <span>↗</span></a>
+          <a className="text-link" href="#contact">{copy.secondaryCta} <span>↗</span></a>
         </motion.div>
       </motion.div>
 
       <motion.a
         className="scroll-cue"
         href="#about"
-        aria-label="Ir a Sobre mí"
+        aria-label={copy.scrollCue}
         style={{ opacity: peripheralOpacity }}
       >
         <span>SCROLL</span>

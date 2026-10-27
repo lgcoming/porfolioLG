@@ -85,8 +85,8 @@ button {
   position: fixed;
   inset: 0 0 auto;
   z-index: 100;
-  height: 108px;
-  border-bottom: 1px solid rgba(0, 255, 102, 0.15);
+  height: 96px;
+  border-bottom: 2px solid rgba(0, 255, 102, 0.15);
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.62), transparent);
   transition: height 240ms ease, background-color 240ms ease, border-color 240ms ease;
 }
@@ -181,6 +181,74 @@ button {
   display: none;
 }
 
+.not-found {
+  display: grid;
+  min-height: 100svh;
+  place-content: center;
+  gap: 1rem;
+  padding: var(--page-x);
+  font-family: var(--font-mono), monospace;
+  text-align: center;
+}
+
+.not-found p {
+  margin: 0;
+  color: var(--accent);
+  letter-spacing: 0.3em;
+}
+
+.not-found h1 {
+  margin: 0;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 500;
+}
+
+.not-found a {
+  color: var(--accent-secondary);
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Selector ES / EN: texto técnico, sin cápsulas; el idioma activo se enciende en verde. */
+.lang-switch {
+  display: flex;
+  align-items: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+}
+
+.lang-switch a {
+  position: relative;
+  padding: 0.45rem 0.5rem;
+  color: #66726d;
+  transition: color 180ms ease;
+}
+
+.lang-switch a + a::before {
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  width: 1px;
+  height: 0.8rem;
+  content: "";
+  transform: translateY(-50%);
+  background: rgba(0, 217, 255, 0.28);
+}
+
+.lang-switch a:hover {
+  color: var(--foreground);
+}
+
+.lang-switch a[data-active="true"] {
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(0, 255, 102, 0.22);
+}
+
 .hero-section {
   position: relative;
   isolation: isolate;
@@ -189,7 +257,7 @@ button {
   place-items: center;
   overflow: hidden;
   padding: 8rem var(--page-x) 5rem;
-  background: #060606;
+  background: #020202;
 }
 
 .hero-field-layer,
@@ -544,6 +612,19 @@ button {
   color: var(--accent);
   font-style: normal;
   text-shadow: 0 0 11px rgba(0, 255, 102, 0.16);
+}
+
+.about-statement .statement-ai {
+  color: var(--accent-secondary);
+  text-shadow: 0 0 11px rgba(0, 217, 255, 0.16);
+}
+
+/* Verde en "segu" → azul en "ridad". */
+.about-statement .statement-security {
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 30%, var(--accent-secondary) 62%, var(--accent-secondary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .about-statement > span {
@@ -1581,7 +1662,7 @@ button {
 
   .mobile-menu {
     position: absolute;
-    top: 71px;
+    top: 70px;
     right: 0;
     left: 0;
     display: grid;
@@ -1711,6 +1792,19 @@ button {
   }
 }
 
+@media (max-width: 768px) {
+  /* Doble del tamaño móvil previo (0.9rem). */
+  .hero-content h2 {
+    font-size: 1.8rem;
+    line-height: 1.2;
+  }
+
+  .about-statement p {
+    font-size: 1.8rem;
+    line-height: 1.2;
+  }
+}
+
 @media (max-width: 520px) {
   :root {
     --page-x: 1.2rem;
@@ -1733,7 +1827,7 @@ button {
 
   .hero-content h2 {
     margin-top: 0.5rem;
-    font-size: 0.8rem;
+    font-size: 1.6rem;
   }
 
   .hero-description {
@@ -1772,7 +1866,7 @@ button {
   }
 
   .about-statement p {
-    font-size: 2.15rem;
+    font-size: 1.8rem;
   }
 
   .about-copy p {

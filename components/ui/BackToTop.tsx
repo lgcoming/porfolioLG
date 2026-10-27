@@ -11,7 +11,7 @@ import { useRef, useState } from "react";
 
 const SHOW_AT_PROGRESS = 0.3;
 
-export function BackToTop() {
+export function BackToTop({ label }: { label: string }) {
   const { scrollYProgress } = useScroll();
   const visibleRef = useRef(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -37,8 +37,8 @@ export function BackToTop() {
         <motion.button
           className="back-to-top"
           type="button"
-          aria-label="Volver arriba"
-          title="Volver arriba"
+          aria-label={label}
+          title={label}
           onClick={scrollToTop}
           initial={{ opacity: 0, y: 14, scale: 0.88 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
