@@ -2,7 +2,7 @@ import type { Service } from "@/types/content";
 
 export const services = [
   {
-    title: { es: "Desarrollo Web a Medida", en: "Custom Web Development" },
+    title: { es: "Desarrollo Web a medida", en: "Custom Web Development" },
     description: {
       es: "Aplicaciones y sitios web modernos, rápidos y escalables adaptados a tus necesidades específicas.",
       en: "Modern, fast and scalable web applications and websites tailored to your specific needs.",

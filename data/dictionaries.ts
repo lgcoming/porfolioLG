@@ -22,7 +22,7 @@ const es = {
   },
   hero: {
     kicker: "Portfolio",
-    role: "Full Stack Web Developer",
+    role: "Full Stack Developer",
     description: rich(
       "Desarrollo impulsado por ",
       { text: "Inteligencia Artificial", tone: "strong" },
