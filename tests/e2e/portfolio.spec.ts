@@ -10,7 +10,7 @@ test("renders the complete portfolio and real project links", async ({ page }) =
   await page.goto("/");
 
   await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName("Luis Gómez");
-  await expect(page.getByRole("heading", { name: "Full Stack Web Developer" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Full Stack Developer", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Sobre mí" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Tecnologías" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Proyectos", exact: true })).toBeVisible();
@@ -54,7 +54,7 @@ test("renders the complete portfolio and real project links", async ({ page }) =
     "href",
     "https://colchon-fy.com/",
   );
-  await expect(page.locator(".project-link")).toHaveCount(8);
+  await expect(page.locator(".project-link")).toHaveCount(10);
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
@@ -509,7 +509,7 @@ test("english version is served at /en with translated content", async ({ page }
     "href",
     "https://calmell.com",
   );
-  await expect(page.locator(".project-link")).toHaveCount(8);
+  await expect(page.locator(".project-link")).toHaveCount(10);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/en$/);
 });
 

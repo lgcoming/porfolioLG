@@ -1687,10 +1687,12 @@ button {
     font-size: 0.55rem;
   }
 
+  /* Centra el contenido en el hueco visible bajo el navbar (72px):
+     mismo margen mínimo arriba y abajo, que deja sitio al indicador de scroll. */
   .hero-section {
     min-height: 100svh;
-    padding-top: 6.5rem;
-    padding-bottom: 4rem;
+    padding-top: calc(72px + 3.5rem);
+    padding-bottom: 3.5rem;
   }
 
   .hero-content h1 {
@@ -1808,11 +1810,6 @@ button {
 @media (max-width: 520px) {
   :root {
     --page-x: 1.2rem;
-  }
-
-  .hero-section {
-    min-height: 820px;
-    padding-top: 5.9rem;
   }
 
   .hero-grid {

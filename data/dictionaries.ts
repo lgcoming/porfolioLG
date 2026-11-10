@@ -8,7 +8,7 @@ const es = {
     title: "Portfolio | Luis Gómez",
     description:
       "Portfolio de Luis Gomez, desarrollador Full Stack especializado en desarrollo web, inteligencia artificial y automatización.",
-    ogTitle: "Luis Gomez — Full Stack Web Developer",
+    ogTitle: "Luis Gomez — Full Stack Developer",
     ogLocale: "es_ES",
   },
   skipLink: "Saltar al contenido principal",
@@ -119,7 +119,7 @@ const en: Dictionary = {
     title: "Portfolio | Luis Gómez",
     description:
       "Portfolio of Luis Gomez, a Full Stack developer specialized in web development, artificial intelligence and automation.",
-    ogTitle: "Luis Gomez — Full Stack Web Developer",
+    ogTitle: "Luis Gomez — Full Stack Developer",
     ogLocale: "en_US",
   },
   skipLink: "Skip to main content",
@@ -133,7 +133,7 @@ const en: Dictionary = {
   },
   hero: {
     kicker: "Portfolio",
-    role: "Full Stack Web Developer",
+    role: "Full Stack Developer",
     description: rich(
       "Development driven by ",
       { text: "Artificial Intelligence", tone: "strong" },

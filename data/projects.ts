@@ -98,4 +98,33 @@ export const projects = [
     imageSurface: "light",
     stack: ["WordPress", "WooCommerce", "Elementor", "CSS3"],
   },
+  {
+    title: "Precios Luz",
+    description: {
+      es: "Precio oficial de la luz (PVPC) hora a hora, con los datos de Red Eléctrica de hoy y de mañana para saber cuándo sale más barato consumir.",
+      en: "Official hourly electricity prices (PVPC) in Spain, with Red Eléctrica data for today and tomorrow to know when it's cheapest to use power.",
+    },
+    href: "https://preciosluz.es/",
+    image: "/projects/preciosluz.webp",
+    imageAlt: {
+      es: "Gráfico de Precios Luz con el precio de la luz por horas",
+      en: "Precios Luz chart with hourly electricity prices",
+    },
+    imageFit: "contain",
+    imageSurface: "light",
+    stack: ["Next.js", "React", "Tailwind CSS", "Cloudflare"],
+  },
+  {
+    title: "Precios Aerotermia",
+    description: {
+      es: "Portal sobre aerotermia con precios de instalación, ayudas (CAE e IRPF), comparativas de marcas, códigos de error y guías de consumo.",
+      en: "Aerothermal heat pump portal with installation prices, grants (CAE and IRPF), brand comparisons, error codes and energy-use guides.",
+    },
+    href: "https://preciosaerotermia.es/",
+    image: "/projects/preciosaerotermia.webp",
+    imageAlt: { es: "Logotipo de Precios Aerotermia", en: "Precios Aerotermia logo" },
+    imageFit: "contain",
+    imageSurface: "light",
+    stack: ["Next.js", "React", "Tailwind CSS", "Cloudflare"],
+  },
 ] as const satisfies readonly LocalizedProject[];
