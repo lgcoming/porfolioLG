@@ -60,6 +60,7 @@ export function ProjectCard({ project, index, copy }: ProjectCardProps) {
               data-surface={imageSurface}
             />
           </motion.div>
+          <span className="project-shade" aria-hidden="true" />
           <span className="project-scan" aria-hidden="true" />
         </div>
 

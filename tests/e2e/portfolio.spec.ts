@@ -114,7 +114,7 @@ test("typing, sizing, technology tape and project cards follow the visual brief"
   await page.waitForTimeout(350);
   await expect(page.locator(".technology-row")).toHaveCount(3);
   await expect(page.locator(".technology-item i")).toHaveCount(0);
-  await expect(page.locator(".technology-icon")).toHaveCount(45);
+  await expect(page.locator(".technology-icon")).toHaveCount(90);
   await expect(page.locator(".technology-row").first()).toHaveAttribute("tabindex", "0");
   const technologyColors = await page.locator(".technology-item").evaluateAll((items) => (
     [...new Set(items.map((item) => getComputedStyle(item).color))]
@@ -184,7 +184,11 @@ test("typing, sizing, technology tape and project cards follow the visual brief"
   for (const project of ["Clínica Dental Castillo", "VonLippe Design", "Colchonfy"]) {
     const image = page.getByRole("link", { name: `Ver proyecto ${project}` }).locator(".project-image");
     await expect(image).toHaveCSS("background-color", "rgb(255, 255, 255)");
+    // Una capa oscura atenúa el fondo blanco del logo.
+    const shade = page.getByRole("link", { name: `Ver proyecto ${project}` }).locator(".project-shade");
+    await expect(shade).toHaveCSS("opacity", "0.3");
   }
+  await expect(page.locator(".project-media .project-shade")).toHaveCount(10);
 
   const calmellImage = page
     .getByRole("link", { name: "Ver proyecto Calmell Group" })
@@ -263,6 +267,8 @@ test("desktop annotations own their responsive tokens", async ({ page }, testInf
       technologyPaddingTop: Number.parseFloat(getComputedStyle(technologyMarquee).paddingTop),
       technologyPaddingBottom: Number.parseFloat(getComputedStyle(technologyMarquee).paddingBottom),
       technologyRowGap: Number.parseFloat(getComputedStyle(technologyMarquee).rowGap),
+      technologyBorderTop: Number.parseFloat(getComputedStyle(technologyMarquee).borderTopWidth),
+      technologyBorderBottom: Number.parseFloat(getComputedStyle(technologyMarquee).borderBottomWidth),
       heroRowGap: Number.parseFloat(getComputedStyle(heroContent).rowGap),
       aboutStatementFontSize: Number.parseFloat(getComputedStyle(aboutStatement).fontSize),
       aboutCopyFontSizes: aboutCopies.map((copy) => Number.parseFloat(getComputedStyle(copy).fontSize)),
@@ -305,9 +311,11 @@ test("desktop annotations own their responsive tokens", async ({ page }, testInf
     "rgb(0, 0, 0)",
     "rgb(6, 6, 6)",
   ]);
-  expect(layout.technologyPaddingTop).toBe(75);
-  expect(layout.technologyPaddingBottom).toBe(75);
-  expect(layout.technologyRowGap).toBeGreaterThanOrEqual(72);
+  expect(layout.technologyPaddingTop).toBe(56);
+  expect(layout.technologyPaddingBottom).toBe(56);
+  expect(layout.technologyRowGap).toBeGreaterThanOrEqual(38);
+  expect(layout.technologyBorderTop).toBe(0);
+  expect(layout.technologyBorderBottom).toBe(0);
   expect(layout.heroRowGap).toBe(10);
   expect(layout.aboutStatementFontSize).toBe(40);
   expect(layout.aboutCopyFontSizes).toEqual([17, 17]);

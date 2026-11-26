@@ -32,6 +32,25 @@ type ShootingStar = {
   life: number;
 };
 
+type ConstellationStar = {
+  x: number;
+  y: number;
+  radius: number;
+  phase: number;
+};
+
+type Constellation = {
+  stars: ConstellationStar[];
+  edges: Array<[number, number]>;
+  bright: number;
+  cx: number;
+  cy: number;
+  period: number;
+  offset: number;
+  depth: number;
+  accent: boolean;
+};
+
 type HeroFieldProps = {
   density?: number;
   stars?: boolean;
@@ -56,6 +75,7 @@ export function HeroField({ density = 1, stars = false }: HeroFieldProps) {
     const context: CanvasRenderingContext2D = canvasContext;
 
     const finePointer = window.matchMedia("(pointer: fine)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const mobile = window.matchMedia("(max-width: 767px)").matches;
     let width = 0;
     let height = 0;
@@ -68,6 +88,7 @@ export function HeroField({ density = 1, stars = false }: HeroFieldProps) {
     let starLayer: HTMLCanvasElement | null = null;
     let shootingStar: ShootingStar | null = null;
     let nextShootingStar = 0;
+    let constellations: Constellation[] = [];
     const pointer = { x: 0, y: 0, active: false };
     const scrollState = { lastY: window.scrollY, progress: 0 };
 
@@ -103,8 +124,13 @@ export function HeroField({ density = 1, stars = false }: HeroFieldProps) {
       const count = Math.round(Math.min(mobile ? 90 : 230, (width * height) / (mobile ? 4200 : 5600)));
       starfield = Array.from({ length: count }, () => {
         const depth = Math.random() ** 2.2;
+        // Un 40 % se reparte en las bandas laterales, que el texto central no ocupa.
+        const lateral = Math.random() < 0.4;
+        const side = Math.random() < 0.5;
         return {
-          x: Math.random() * width,
+          x: lateral
+            ? width * (side ? Math.random() * 0.3 : 0.7 + Math.random() * 0.3)
+            : Math.random() * width,
           y: Math.random() * height,
           radius: 0.3 + depth * 0.95,
           alpha: 0.14 + depth * 0.5 + Math.random() * 0.12,
@@ -128,6 +154,131 @@ export function HeroField({ density = 1, stars = false }: HeroFieldProps) {
       layerContext.fillStyle = "#fff";
       for (const star of starfield) {
         if (!star.twinkle) paintStar(layerContext, star, star.alpha);
+      }
+    };
+
+    // Constelaciones pequeñas en los laterales: aparecen trazándose, se mantienen y se apagan.
+    const createConstellations = () => {
+      constellations = [];
+      if (!stars) return;
+      const perSide = mobile ? 1 : width < 1200 ? 3 : 4;
+      for (const side of [0, 1]) {
+        for (let slot = 0; slot < perSide; slot += 1) {
+          const scale = (mobile ? 0.72 : 1) * (0.8 + Math.random() * 0.5);
+          const count = 4 + Math.floor(Math.random() * 4);
+          const points: ConstellationStar[] = [];
+          let px = 0;
+          let py = 0;
+          let angle = Math.random() * Math.PI * 2;
+          for (let index = 0; index < count; index += 1) {
+            if (index > 0) {
+              angle += (Math.random() - 0.5) * 2.2;
+              const step = (24 + Math.random() * 38) * scale;
+              px += Math.cos(angle) * step;
+              py += Math.sin(angle) * step;
+            }
+            points.push({ x: px, y: py, radius: 0.75 + Math.random() * 0.85, phase: Math.random() * Math.PI * 2 });
+          }
+          const meanX = points.reduce((sum, point) => sum + point.x, 0) / count;
+          const meanY = points.reduce((sum, point) => sum + point.y, 0) / count;
+          let extent = 0;
+          for (const point of points) {
+            point.x -= meanX;
+            point.y -= meanY;
+            extent = Math.max(extent, Math.hypot(point.x, point.y));
+          }
+
+          const edges: Array<[number, number]> = [];
+          for (let index = 1; index < count; index += 1) edges.push([index - 1, index]);
+          if (count >= 5 && Math.random() < 0.6) edges.push([count - 1, count - 4]);
+
+          const band = height / perSide;
+          const rawX = mobile
+            ? width * (side ? 0.84 : 0.16)
+            : width * (side ? 0.76 + Math.random() * 0.2 : 0.04 + Math.random() * 0.2);
+          const rawY = mobile
+            ? height * (side ? 0.88 : 0.12)
+            : band * (slot + 0.5) + (Math.random() - 0.5) * band * 0.45;
+          const margin = extent + 14;
+          const bright = Math.floor(Math.random() * count);
+          points[bright].radius = 1.55;
+          const period = 16000 + Math.random() * 12000;
+          constellations.push({
+            stars: points,
+            edges,
+            bright,
+            cx: Math.min(Math.max(rawX, margin), Math.max(margin, width - margin)),
+            cy: Math.min(Math.max(rawY, margin), Math.max(margin, height - margin)),
+            period,
+            offset: Math.random() * period,
+            depth: 0.4 + Math.random() * 0.6,
+            accent: Math.random() < 0.45,
+          });
+        }
+      }
+    };
+
+    const easeInOut = (value: number) => value * value * (3 - 2 * value);
+
+    const drawConstellations = (time: number) => {
+      if (!constellations.length) return;
+      const pointerX = pointer.active ? (pointer.x - width * 0.5) * 0.02 : 0;
+      const pointerY = pointer.active ? (pointer.y - height * 0.5) * 0.02 : 0;
+      context.lineWidth = 0.6;
+      for (const constellation of constellations) {
+        let alpha = 1;
+        let drawn = 1;
+        if (!reducedMotion) {
+          const cycle = ((time + constellation.offset) % constellation.period) / constellation.period;
+          if (cycle < 0.14) {
+            alpha = easeInOut(cycle / 0.14);
+            drawn = alpha;
+          } else if (cycle >= 0.86) {
+            continue;
+          } else if (cycle >= 0.72) {
+            alpha = 1 - easeInOut((cycle - 0.72) / 0.14);
+          }
+        }
+
+        // Más profundidad = más desplazamiento con puntero y scroll (parallax suave).
+        const depth = constellation.depth;
+        const drift = reducedMotion ? 0 : Math.sin(time * 0.00004 + constellation.offset) * 5 * depth;
+        const originX = constellation.cx + pointerX * depth + drift;
+        const originY = constellation.cy + pointerY * depth - scrollState.progress * 46 * depth;
+        const { stars: points, edges } = constellation;
+
+        context.strokeStyle = constellation.accent
+          ? `rgba(0, 255, 102, ${0.2 * alpha})`
+          : `rgba(0, 217, 255, ${0.24 * alpha})`;
+        context.beginPath();
+        for (let index = 0; index < edges.length; index += 1) {
+          const portion = Math.min(1, Math.max(0, drawn * edges.length - index));
+          if (!portion) break;
+          const from = points[edges[index][0]];
+          const to = points[edges[index][1]];
+          context.moveTo(originX + from.x, originY + from.y);
+          context.lineTo(originX + from.x + (to.x - from.x) * portion, originY + from.y + (to.y - from.y) * portion);
+        }
+        context.stroke();
+
+        for (let index = 0; index < points.length; index += 1) {
+          const point = points[index];
+          const twinkle = reducedMotion ? 1 : 0.7 + Math.sin(time * 0.0016 + point.phase) * 0.3;
+          const x = originX + point.x;
+          const y = originY + point.y;
+          if (index === constellation.bright) {
+            context.fillStyle = constellation.accent
+              ? `rgba(0, 255, 102, ${0.12 * alpha * twinkle})`
+              : `rgba(0, 217, 255, ${0.14 * alpha * twinkle})`;
+            context.beginPath();
+            context.arc(x, y, point.radius * 4, 0, Math.PI * 2);
+            context.fill();
+          }
+          context.fillStyle = `rgba(228, 250, 255, ${0.78 * alpha * twinkle})`;
+          context.beginPath();
+          context.arc(x, y, point.radius, 0, Math.PI * 2);
+          context.fill();
+        }
       }
     };
 
@@ -233,6 +384,7 @@ export function HeroField({ density = 1, stars = false }: HeroFieldProps) {
       canvas.style.height = `${height}px`;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       createStars();
+      createConstellations();
       createNodes();
     };
 
@@ -284,6 +436,7 @@ export function HeroField({ density = 1, stars = false }: HeroFieldProps) {
       context.clearRect(0, 0, width, height);
       // Capa más profunda: se pinta antes que órbitas y constelaciones.
       drawStars(time);
+      drawConstellations(time);
       drawShootingStar(time);
       drawOrbit(time);
       drawPointerField();

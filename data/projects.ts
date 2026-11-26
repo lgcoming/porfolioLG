@@ -12,7 +12,7 @@ export const projects = [
     imageFit: "contain",
     imageSurface: "light",
     imagePadding: "compact",
-    stack: ["WordPress", "Elementor", "HTML5", "CSS3", "JS"],
+    stack: ["WordPress", "Elementor", "PHP", "Yoast SEO", "HTML5", "CSS3", "JS"],
   },
   {
     title: "Camisetas Mundial",
@@ -22,7 +22,7 @@ export const projects = [
     },
     href: "https://camisetasmundial.com",
     image: "/projects/camisetas-mundial.webp",
-    stack: ["WordPress", "Elementor", "HTML5", "CSS3", "JS"],
+    stack: ["WordPress", "WooCommerce", "Elementor", "LiteSpeed Cache", "HTML5", "CSS3", "JS"],
   },
   {
     title: "Metabyts S.L.",
@@ -32,7 +32,7 @@ export const projects = [
     },
     href: "https://metabyts.com",
     image: "/projects/metabyts.webp",
-    stack: ["WordPress", "Elementor", "HTML5", "CSS3", "JS"],
+    stack: ["WordPress", "Elementor", "Yoast SEO", "LiteSpeed Cache", "HTML5", "CSS3", "JS"],
   },
   {
     title: "WikipeIA",
@@ -42,7 +42,7 @@ export const projects = [
     },
     href: "https://wikipeia.es",
     image: "/projects/wikipeia.webp",
-    stack: ["Next.js", "React", "Tailwind CSS", "TS"],
+    stack: ["Next.js", "React", "Tailwind CSS", "TS", "Framer Motion", "Vercel"],
   },
   {
     title: "Clínica Dental Castillo",
@@ -56,7 +56,7 @@ export const projects = [
     imageFit: "contain",
     imageSurface: "light",
     imagePadding: "generous",
-    stack: ["Next.js", "React", "Vercel", "CSS3"],
+    stack: ["Next.js", "React", "TypeScript", "Framer Motion", "Vercel", "CSS3"],
   },
   {
     title: "VonLippe Design",
@@ -69,7 +69,7 @@ export const projects = [
     imageAlt: { es: "Logotipo de VonLippe Design", en: "VonLippe Design logo" },
     imageFit: "contain",
     imageSurface: "light",
-    stack: ["WordPress", "WooCommerce", "HTML5", "CSS3"],
+    stack: ["WordPress", "WooCommerce", "PHP", "Yoast SEO", "HTML5", "CSS3"],
   },
   {
     title: "Daycar Homes",
@@ -83,7 +83,7 @@ export const projects = [
     imageFit: "contain",
     imageSurface: "light",
     imagePadding: "generous",
-    stack: ["WordPress", "Elementor", "HTML5", "CSS3"],
+    stack: ["WordPress", "Elementor", "PHP", "Yoast SEO", "HTML5", "CSS3"],
   },
   {
     title: "Colchonfy",
@@ -96,7 +96,7 @@ export const projects = [
     imageAlt: { es: "Logotipo de Colchonfy", en: "Colchonfy logo" },
     imageFit: "contain",
     imageSurface: "light",
-    stack: ["WordPress", "WooCommerce", "Elementor", "CSS3"],
+    stack: ["WordPress", "WooCommerce", "Elementor", "PHP", "Yoast SEO", "CSS3"],
   },
   {
     title: "Precios Luz",
@@ -112,7 +112,7 @@ export const projects = [
     },
     imageFit: "contain",
     imageSurface: "light",
-    stack: ["Next.js", "React", "Tailwind CSS", "Cloudflare"],
+    stack: ["Next.js", "React", "TypeScript", "Tailwind CSS", "API ESIOS", "Cloudflare"],
   },
   {
     title: "Precios Aerotermia",
@@ -125,6 +125,6 @@ export const projects = [
     imageAlt: { es: "Logotipo de Precios Aerotermia", en: "Precios Aerotermia logo" },
     imageFit: "contain",
     imageSurface: "light",
-    stack: ["Next.js", "React", "Tailwind CSS", "Cloudflare"],
+    stack: ["Next.js", "React", "TypeScript", "Tailwind CSS", "MDX", "Cloudflare"],
   },
 ] as const satisfies readonly LocalizedProject[];

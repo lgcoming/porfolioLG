@@ -2,21 +2,21 @@ import type { Service } from "@/types/content";
 
 export const services = [
   {
-    title: { es: "Desarrollo Web a medida", en: "Custom Web Development" },
+    title: { es: "Desarrollo Web a Medida", en: "Custom Web Development" },
     description: {
       es: "Aplicaciones y sitios web modernos, rápidos y escalables adaptados a tus necesidades específicas.",
       en: "Modern, fast and scalable web applications and websites tailored to your specific needs.",
     },
   },
   {
-    title: { es: "Revisión y mejora de webs", en: "Website review and improvement" },
+    title: { es: "Revisión y Mejora de Webs", en: "Website Review and Improvement" },
     description: {
       es: "Auditoría completa y modernización de tu web existente: diseño actualizado, mejor rendimiento y optimizaciones con IA.",
       en: "A complete audit and modernization of your existing website: refreshed design, better performance and AI-powered optimizations.",
     },
   },
   {
-    title: { es: "Automatizar procesos con IA", en: "AI process automation" },
+    title: { es: "Automatiza Procesos con IA", en: "AI Process Automation" },
     description: {
       es: "Reduce el trabajo manual y aumenta la eficiencia de tu empresa con soluciones inteligentes.",
       en: "Reduce manual work and boost your company's efficiency with intelligent solutions.",
@@ -37,14 +37,14 @@ export const services = [
     },
   },
   {
-    title: { es: "Agentes IA operativos 24/7", en: "AI agents working 24/7" },
+    title: { es: "Agentes IA Operativos 24/7", en: "AI Agents Working 24/7" },
     description: {
       es: "Agentes de IA capaces de realizar cualquier tarea totalmente personalizados que trabajan las 24 horas para tu negocio.",
       en: "Fully customized AI agents capable of performing any task, working around the clock for your business.",
     },
   },
   {
-    title: { es: "Chatbots personalizados", en: "Custom chatbots" },
+    title: { es: "Chatbots Personalizados", en: "Custom Chatbots" },
     description: {
       es: "Asistentes con IA completamente adaptados a tu negocio para soporte al cliente y captación de leads 24/7.",
       en: "AI assistants fully tailored to your business for 24/7 customer support and lead generation.",
