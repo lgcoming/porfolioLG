@@ -747,7 +747,8 @@ button {
 
 .technologies-intro {
   display: block;
-  margin-bottom: 4.5rem;
+  /* Hueco total hasta la primera fila = 2/3 de (4.5rem + 3.5rem de padding de la cinta). */
+  margin-bottom: calc((4.5rem + 3.5rem) * 2 / 3 - 3.5rem);
 }
 
 .technologies-intro p {
@@ -983,12 +984,12 @@ button {
   inset: 0;
   pointer-events: none;
   background: rgb(0, 0, 0);
-  opacity: 0.3;
+  opacity: 0.25;
   transition: opacity 400ms ease;
 }
 
 .project-link:hover .project-shade {
-  opacity: 0.14;
+  opacity: 0.12;
 }
 
 .project-image[data-fit="contain"] {
@@ -1889,7 +1890,7 @@ button {
   }
 
   .technologies-intro {
-    margin-bottom: 3rem;
+    margin-bottom: calc((3rem + 2.6rem) * 2 / 3 - 2.6rem);
   }
 
   .technologies-intro p {

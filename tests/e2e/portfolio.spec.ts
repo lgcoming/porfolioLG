@@ -186,7 +186,7 @@ test("typing, sizing, technology tape and project cards follow the visual brief"
     await expect(image).toHaveCSS("background-color", "rgb(255, 255, 255)");
     // Una capa oscura atenúa el fondo blanco del logo.
     const shade = page.getByRole("link", { name: `Ver proyecto ${project}` }).locator(".project-shade");
-    await expect(shade).toHaveCSS("opacity", "0.3");
+    await expect(shade).toHaveCSS("opacity", "0.25");
   }
   await expect(page.locator(".project-media .project-shade")).toHaveCount(10);
 
